@@ -69,6 +69,9 @@ if has("autocmd")
   " Use the default filetype settings, so that mail gets 'tw' set to 72,
   " 'cindent' is on in C files, etc.
   " Also load indent files, to automatically do language-dependent indenting.
+  filetype off
+  call pathogen#helptags()
+  call pathogen#runtime_append_all_bundles() 
   filetype plugin indent on
 
   " Put these in an autocmd group, so that we can delete them easily.
@@ -128,7 +131,7 @@ endif
 if has("gui_running")
     :color molokai
 else
-    :color desert
+    :color molokai
 endif
 
 " GRB: hide the toolbar in GUI mode
@@ -434,7 +437,7 @@ map <leader>ws :%s/ *$//g<cr><c-o><cr>
 " Always show tab bar
 set showtabline=2
 
-map <leader>t :CommandT<cr>
+map <leader>\t :CommandT<cr>
 
 augroup mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
@@ -442,7 +445,7 @@ augroup mkd
 augroup END
 
 "set makeprg=python\ -m\ nose.core\ --machine-out
-autocmd FileType javascript set makeprg=cat\ %\ \\\|\ /opt/local/bin/js\ /Users/emir/.vim/js/mylintrun.js\ %
+autocmd FileType javascript set makeprg=cat\ %\ \\\|\ /usr/local/bin/js\ /Users/emir/.vim/js/mylintrun.js\ %
 autocmd FileType javascript set errorformat=%f:%l:%c:%m
 
 map <silent> <leader>y :<C-u>silent '<,'>w !pbcopy<CR>
@@ -486,7 +489,7 @@ if has("gui_macvim")
 " idea    map <C-1> /[BBReportHelper accessoryNoneAllRowsInTable:tableView inSection:0];
 "    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;<CR>
 endif
-filetype plugin indent on
+
 
 
 "handle split"
@@ -526,6 +529,15 @@ for s:tf in s:tfs
      let &tags.=",".expand(escape(escape(s:tf, " "), " "))
    endfor
 
+
+let g:speckyBannerKey        = "<C-S>b"
+let g:speckyQuoteSwitcherKey = "<C-S>'"
+let g:speckyRunRdocKey       = "<C-S>r"
+let g:speckySpecSwitcherKey  = "<C-S>x"
+let g:speckyRunSpecKey       = "<C-S>s"
+let g:speckyRunRdocCmd       = "fri -L -f plain"
+let g:speckyWindowType       = 2
+
 " change background depending on mode
 function! s:EnterInsert()
     "highlight Normal guibg=#442222
@@ -537,3 +549,10 @@ function! s:LeaveInsert()
    "hi Normal          guifg=#F8F8F2 guibg=#1B1D1E
 endfunction
 
+"http://stackoverflow.com/questions/1979520/auto-open-nerdtree-in-every-tab
+autocmd VimEnter *.rb NERDTree
+autocmd VimEnter *.rb TlistToggle
+filetype off
+call pathogen#helptags()
+call pathogen#runtime_append_all_bundles() 
+filetype plugin indent on

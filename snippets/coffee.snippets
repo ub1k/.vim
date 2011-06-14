@@ -82,3 +82,18 @@ snippet ##
 	###
 		${1:comment}
 	###
+#emir addded snippets for jasmine
+snippet it
+	it '${1:should...}', ->
+		(expect ${2:condition}).toEqual(${3})
+
+snippet desc
+	describe '${1:when...}', ->
+		beforeEach ->
+			${2}
+
+	it '${3:should...}', -> 
+		 (expect$ {4:condition}).toEqual(${5})
+
+
+
