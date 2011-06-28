@@ -116,13 +116,15 @@ set textwidth=78
 set hls
 
 if has("gui_running")
-  " GRB: set font"
-  :set enc=utf-8 gfn=Consolas:h14
-
+  if has("gui_macvim")
+    " GRB: set font"
+    :set enc=utf-8 gfn=Consolas:h14
+  else
+    :set enc=utf-8 gfn=Neep\ 12
+  endif
   " GRB: set window size"
   :set lines=100
   :set columns=300
-
   " GRB: highlight current line"
   ":set cursorline
 endif
@@ -436,7 +438,7 @@ map <leader>ws :%s/ *$//g<cr><c-o><cr>
 
 " Always show tab bar
 set showtabline=2
-
+"
 map <leader>\t :CommandT<cr>
 
 augroup mkd
@@ -550,8 +552,8 @@ function! s:LeaveInsert()
 endfunction
 
 "http://stackoverflow.com/questions/1979520/auto-open-nerdtree-in-every-tab
-autocmd VimEnter *.rb NERDTree
-autocmd VimEnter *.rb TlistToggle
+"autocmd VimEnter *.rb NERDTree
+"autocmd VimEnter *.rb TlistToggle
 filetype off
 call pathogen#helptags()
 call pathogen#runtime_append_all_bundles() 
