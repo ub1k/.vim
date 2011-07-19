@@ -116,15 +116,13 @@ set textwidth=78
 set hls
 
 if has("gui_running")
-  if has("gui_macvim")
-    " GRB: set font"
-    :set enc=utf-8 gfn=Consolas:h14
-  else
-    :set enc=utf-8 gfn=Neep\ 12
-  endif
+  " GRB: set font"
+  :set enc=utf-8 gfn=Consolas:h14
+
   " GRB: set window size"
   :set lines=100
   :set columns=300
+
   " GRB: highlight current line"
   ":set cursorline
 endif
@@ -362,9 +360,9 @@ autocmd! BufRead,BufNewFile *.sass setfiletype sass
 map <leader>e :edit <C-R>=expand("%:h")<cr>/
 map <leader>v :view <C-R>=expand("%:h")<cr>/
 
-if has("python")
-    source ~/.vim/ropevim/rope.vim
-endif
+"if has("python")
+    "source ~/.vim/ropevim/rope.vim
+"endif
 
 autocmd BufRead,BufNewFile *.feature set sw=4 sts=4 et
 
@@ -438,7 +436,7 @@ map <leader>ws :%s/ *$//g<cr><c-o><cr>
 
 " Always show tab bar
 set showtabline=2
-"
+
 map <leader>\t :CommandT<cr>
 
 augroup mkd
@@ -558,3 +556,4 @@ filetype off
 call pathogen#helptags()
 call pathogen#runtime_append_all_bundles() 
 filetype plugin indent on
+autocmd BufWritePost *.coffee silent CoffeeMake!
