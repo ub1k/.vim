@@ -461,6 +461,27 @@ set completeopt+=longest
 "nerd tree plugin"
 map <F2> :NERDTreeToggle<CR>
 map <F3> :%s/^\s*\(NSLog.*\)/\/\/\1/g<CR>
+  
+function DeProtofy()
+  "Get current line...
+  let curr_line = getline('.')
+  let replacement = substitute(curr_line,'ClassName','Class','g')
+  let replacement = substitute(replacement,'readAttribute','attr','g')
+  let replacement = substitute(replacement,'setStyle','css','g')
+  let replacement = substitute(replacement,'[^$]{1,}sub_element','$sub_element','g')
+  call setline('.', replacement)
+endfunction
+function DeAmperfy()
+  "Get current line...
+  let curr_line = getline('.')
+  "Replace raw ampersands...
+  let replacement = substitute(curr_line,'=','&amp;','g')
+
+  "Update current line...
+  call setline('.', replacement)
+endfunction
+
+map <F7> :call DeProtofy()<CR>
 "so obj_matchbracket.vim
 "so  /Users/emir/.vim/ftplugin/obj_matchbracket.vim
 "info file"
@@ -519,6 +540,7 @@ set wmh=0
 autocmd InsertLeave * call s:LeaveInsert()
 autocmd InsertEnter * call s:EnterInsert()
 
+
 au BufRead,BufNewFile *.json set filetype=json
 au! Syntax json source /Users/emir/.vim/ftplugin/json.vim
 set autowriteall
@@ -556,4 +578,9 @@ filetype off
 call pathogen#helptags()
 call pathogen#runtime_append_all_bundles() 
 filetype plugin indent on
-autocmd BufWritePost *.coffee silent CoffeeMake!
+autocmd BufWritePost *.coffee CoffeeMake!
+set viminfo='100,f1
+
+"dictinary
+set dictionary= "/usr/share/dict/words"
+"setlocal spell spelllang=en_us
