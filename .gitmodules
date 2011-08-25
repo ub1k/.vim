@@ -1,3 +1,21 @@
 [submodule "bundle/fugitive"]
 	path = bundle/fugitive
 	url = http://github.com/tpope/vim-fugitive.git
+[submodule "bundle/vim-rails"]
+	path = bundle/vim-rails
+	url = http://github.com/tpope/vim-rails.git
+[submodule "bundle/vim-javascript"]
+	path = bundle/vim-javascript
+	url = https://github.com/pangloss/vim-javascript.git
+[submodule "bundle/vim-coffee-script"]
+	path = bundle/vim-coffee-script
+	url = https://github.com/kchmck/vim-coffee-script.git
+[submodule "bundle/snipmate.vim"]
+	path = bundle/snipmate.vim
+	url = http://github.com/msanders/snipmate.vim.git
+[submodule "bundle/jasmine.vim"]
+	path = bundle/jasmine.vim
+	url = http://github.com/claco/jasmine.vim.git
+[submodule "bundle/zencoding-vim"]
+	path = bundle/zencoding-vim
+	url = http://github.com/mattn/zencoding-vim.git
