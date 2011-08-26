@@ -130,6 +130,7 @@ endif
 " GRB: set the color scheme
 if has("gui_running")
     :color molokai
+    :color moria
 else
     :color molokai
 endif
@@ -467,8 +468,12 @@ function DeProtofy()
   let curr_line = getline('.')
   let replacement = substitute(curr_line,'ClassName','Class','g')
   let replacement = substitute(replacement,'readAttribute','attr','g')
+  let replacement = substitute(replacement,'writeAttribute','attr','g')
   let replacement = substitute(replacement,'setStyle','css','g')
-  let replacement = substitute(replacement,'[^$]{1,}sub_element','$sub_element','g')
+  let replacement = substitute(replacement,'getStyle','css','g')
+  let replacement = substitute(replacement,'select','find','g')
+  let replacement = substitute(replacement,'$(','(jQuery ','g')
+  let replacement = substitute(replacement,'innerHTML =','html','g')
   call setline('.', replacement)
 endfunction
 function DeAmperfy()
@@ -513,12 +518,12 @@ endif
 
 
 
-"handle split"
-map <C-J> <C-W>j<C-W>_
-map <C-K> <C-W>k<C-W>_
-map <C-H> <C-W>h<C-W>_
-map <C-L> <C-W>l<C-W>_
-set wmh=0
+""handle split"
+"map <C-J> <C-W>j<C-W>_
+"map <C-K> <C-W>k<C-W>_
+"map <C-H> <C-W>h<C-W>_
+"map <C-L> <C-W>l<C-W>_
+"set wmh=0
 
 
 
@@ -584,3 +589,10 @@ set viminfo='100,f1
 "dictinary
 set dictionary= "/usr/share/dict/words"
 "setlocal spell spelllang=en_us
+map <f4> :CoffeeCompile <CR>
+" Vimcasts #1
+" Shortcut to rapidly toggle `set list`
+nmap <leader>l :set list!<CR>
+"  
+"  " Use the same symbols as TextMate for tabstops and EOLs
+set listchars=tab:▸\ ,eol:¬
