@@ -596,3 +596,10 @@ nmap <leader>l :set list!<CR>
 "  
 "  " Use the same symbols as TextMate for tabstops and EOLs
 set listchars=tab:▸\ ,eol:¬
+" Source the vimrc file after saving it
+if has("autocmd")
+  autocmd bufwritepost .vimrc source $MYVIMRC
+endif
+" edit the vimrc file after saving it
+let mapleader = ","
+nmap <leader>v :tabedit $MYVIMRC<CR>
