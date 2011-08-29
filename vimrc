@@ -129,8 +129,9 @@ endif
 
 " GRB: set the color scheme
 if has("gui_running")
-    :color molokai
-    :color moria
+    ":color molokai
+    ":color moria
+    :color vividchalk
 else
     :color molokai
 endif
@@ -603,3 +604,22 @@ endif
 " edit the vimrc file after saving it
 let mapleader = ","
 nmap <leader>v :tabedit $MYVIMRC<CR>
+
+" open current window maximized
+nmap t% :tabedit %<CR>
+nmap td :tabclose<CR>
+
+" next buffer 
+nnoremap <C-n> :bnext<CR>
+nnoremap <C-p> :bprevious<CR>
+
+" buffexplorer 
+nnoremap <C-b> :BufExplorer<CR>
+
+"ruby
+autocmd FileType ruby,eruby set omnifunc=rubycompleteComplete
+autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+""improve autocomplete menu color
+highlight Pmenu ctermbg=238 gui=bold
