@@ -617,9 +617,33 @@ nnoremap <C-p> :bprevious<CR>
 nnoremap <C-b> :BufExplorer<CR>
 
 "ruby
-autocmd FileType ruby,eruby set omnifunc=rubycompleteComplete
+autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
 autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
 autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
 ""improve autocomplete menu color
 highlight Pmenu ctermbg=238 gui=bold
+
+
+"remaping collinding leader mappings on ruby-debuggenstall vim-ruby --remoter,
+"needs commenting out the original mappings
+
+noremap <leader>db  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.toggle_breakpoint()<CR>
+noremap <leader>dv  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.open_variables()<CR>
+noremap <leader>dm  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.open_breakpoints()<CR>
+noremap <leader>dt  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.open_frames()<CR>
+noremap <leader>ds  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.step()<CR>
+noremap <leader>df  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.finish()<CR>
+noremap <leader>dn  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.next()<CR>
+noremap <leader>dc  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.continue()<CR>
+noremap <leader>de  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.exit()<CR>
+noremap <leader>dd  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.remove_breakpoints()<CR>
+
+"fast color change
+noremap <leader>c1  :color moria<CR>
+noremap <leader>c2  :color vividchalk<CR>
+noremap <leader>c3  :color molokai<CR>
+"
+" fix for rubby debugger
+let g:ruby_debugger_progname = 'mvim'
+let g:ruby_debugger_spec_path = '/Users/emir/.rvm/gems/ruby-1.8.7-p334@hoppakay/bin/rspec'         " set Rspec path
