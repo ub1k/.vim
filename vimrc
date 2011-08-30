@@ -647,3 +647,10 @@ noremap <leader>c3  :color molokai<CR>
 " fix for rubby debugger
 let g:ruby_debugger_progname = 'mvim'
 let g:ruby_debugger_spec_path = '/Users/emir/.rvm/gems/ruby-1.8.7-p334@hoppakay/bin/rspec'         " set Rspec path
+
+" rails.vim
+noremap <leader>rc :Rcontroller<CR>
+noremap <leader>rm :Rmodel<CR>
+noremap <leader>rmi :Rmigration<CR>
+noremap <leader>rl :Rlocale<CR>
+noremap <leader>rv :Rview<CR>
