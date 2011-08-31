@@ -461,7 +461,6 @@ set ofu=syntaxcomplete#Complete
 "type and delete to narrow down or expand results.
 set completeopt+=longest
 "nerd tree plugin"
-map <F2> :NERDTreeToggle<CR>
 map <F3> :%s/^\s*\(NSLog.*\)/\/\/\1/g<CR>
   
 function DeProtofy()
@@ -605,6 +604,8 @@ endif
 let mapleader = ","
 nmap <leader>v :tabedit $MYVIMRC<CR>
 
+
+nmap <leader>nf :NERDTreeFind<CR>
 " open current window maximized
 nmap t% :tabedit %<CR>
 nmap td :tabclose<CR>
