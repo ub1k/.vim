@@ -579,9 +579,9 @@ endfunction
 "http://stackoverflow.com/questions/1979520/auto-open-nerdtree-in-every-tab
 "autocmd VimEnter *.rb NERDTree
 "autocmd VimEnter *.rb TlistToggle
-filetype off
-call pathogen#helptags()
-call pathogen#runtime_append_all_bundles() 
+"filetype off
+call pathogen#infect()
+syntax on
 filetype plugin indent on
 autocmd BufWritePost *.coffee CoffeeMake!
 set viminfo='100,f1
@@ -618,7 +618,7 @@ nnoremap <C-p> :bprevious<CR>
 nnoremap <C-b> :BufExplorer<CR>
 
 "ruby
-autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+"autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
 autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
 autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
 autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
