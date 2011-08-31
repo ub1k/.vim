@@ -11,7 +11,19 @@ endif
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
+filetype off  " required!
 
+set rtp+=~/.vim/vundle.git/ 
+call vundle#rc()
+Bundle 'tpope/vim-fugitive'
+Bundle 'lokaltog/vim-easymotion'
+Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+" vim-scripts repos
+Bundle 'L9'
+Bundle 'FuzzyFinder'
+Bundle 'rails.vim'
+
+filetype plugin indent on     " required!
 " Allow backgrounding buffers without writing them, and remember marks/undo
 " for backgrounded buffers
 set hidden
@@ -70,8 +82,8 @@ if has("autocmd")
   " 'cindent' is on in C files, etc.
   " Also load indent files, to automatically do language-dependent indenting.
   filetype off
-  call pathogen#helptags()
-  call pathogen#runtime_append_all_bundles() 
+  call pathogen#infect()
+  syntax on
   filetype plugin indent on
 
   " Put these in an autocmd group, so that we can delete them easily.
@@ -580,9 +592,6 @@ endfunction
 "autocmd VimEnter *.rb NERDTree
 "autocmd VimEnter *.rb TlistToggle
 "filetype off
-call pathogen#infect()
-syntax on
-filetype plugin indent on
 autocmd BufWritePost *.coffee CoffeeMake!
 set viminfo='100,f1
 
