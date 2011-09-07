@@ -3,6 +3,7 @@
 " Be warned: this has grown slowly over years and may not be internally
 " consistent.
 
+
 " When started as "evim", evim.vim will already have done these settings.
 if v:progname =~? "evim"
   finish
@@ -11,11 +12,13 @@ endif
 " Use Vim settings, rather then Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 set nocompatible
+
 " Allow backgrounding buffers without writing them, and remember marks/undo
 " for backgrounded buffers
 set hidden
 
 " Remember more commands and search history
+" set
 set history=1000
 
 " Make tab completion for files/buffers act like bash
@@ -59,6 +62,7 @@ if &t_Co > 2 || has("gui_running")
   syntax on
   set hlsearch
   " set guifont=Monaco:h14
+  set guifont=Inconsolata-dz:h14
 endif
 
 " Only do this part when compiled with support for autocommands.
@@ -68,6 +72,7 @@ if has("autocmd")
   " Use the default filetype settings, so that mail gets 'tw' set to 72,
   " 'cindent' is on in C files, etc.
   " Also load indent files, to automatically do language-dependent indenting.
+  filetype plugin indent on
 
   " Put these in an autocmd group, so that we can delete them easily.
   augroup vimrcEx
@@ -95,9 +100,9 @@ endif " has("autocmd")
 
 " GRB: sane editing configuration"
 set expandtab
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
 set autoindent
 " set smartindent
 set laststatus=2
@@ -105,31 +110,40 @@ set showmatch
 set incsearch
 
 " GRB: wrap lines at 78 characters
-set textwidth=78
+" set textwidth=78
+
+" GRB: Highlight long lines
+" Turn long-line highlighting off when entering all files, then on when
+" entering certain files. I don't understand why :match is so stupid that
+" setting highlighting when entering a .rb file will cause e.g. a quickfix
+" window opened later to have the same match. There doesn't seem to be any way
+" to localize it to a file type.
+" function! HighlightLongLines()
+"   hi LongLine guifg=NONE guibg=NONE gui=undercurl ctermfg=white ctermbg=red cterm=NONE guisp=#FF6C60 " undercurl color
+" endfunction
+" function! StopHighlightingLongLines()
+"   hi LongLine guifg=NONE guibg=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE guisp=NONE
+" endfunction
+" autocmd TabEnter,WinEnter,BufWinEnter * call StopHighlightingLongLines()
+" autocmd TabEnter,WinEnter,BufWinEnter *.rb,*.py call HighlightLongLines()
+" hi LongLine guifg=NONE
+" match LongLine '\%>78v.\+'
 
 " GRB: highlighting search"
 set hls
 
 if has("gui_running")
   " GRB: set font"
-  :set enc=utf-8 gfn=Consolas:h14
+  ":set nomacatsui anti enc=utf-8 gfn=Monaco:h12
 
   " GRB: set window size"
   :set lines=100
-  :set columns=300
+  :set columns=171
 
   " GRB: highlight current line"
-  ":set cursorline
+  :set cursorline
 endif
 
-" GRB: set the color scheme
-if has("gui_running")
-    ":color molokai
-    ":color moria
-    :color moria
-else
-    :color molokai
-endif
 
 " GRB: hide the toolbar in GUI mode
 if has("gui_running")
@@ -144,173 +158,141 @@ function! ShowPydoc(module, ...)
     :execute ":sp ".fPath
 endfunction
 
-" GRB: Always source python.vim for Python files
-"au FileType python source ~/.vim/scripts/python.vim
-
-" GRB: Use custom python.vim syntax file
-au! Syntax python source ~/.vim/syntax/python.vim
-let python_highlight_all = 1
-let python_slow_sync = 1
-
 " GRB: use emacs-style tab completion when selecting files, etc
 set wildmode=longest,list
 
 " GRB: Put useful info in status line
-:set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'%{rvm#statusline()} 
+:set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
 
 " GRB: clear the search buffer when hitting return
-:nnoremap <CR> :nohlsearch<CR>/<BS>
+:nnoremap <CR> :nohlsearch<cr>
 
+" Remap the tab key to do autocompletion or indentation depending on the
+" context (from http://www.vim.org/tips/tip.php?tip_id=102)
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <s-tab> <c-n>
 
+" When hitting <;>, complete a snippet if there is one; else, insert an actual
+" <;>
+function! InsertSnippetWrapper()
+    let inserted = TriggerSnippet()
+    if inserted == "\<tab>"
+        return ";"
+    else
+        return inserted
+    endif
+endfunction
 
+if version >= 700
+    autocmd FileType python set omnifunc=pythoncomplete#Complete
+    let Tlist_Ctags_Cmd='~/bin/ctags'
+endif
 
+function! RunTests(target, args)
+    silent ! echo
+    exec 'silent ! echo -e "\033[1;36mRunning tests in ' . a:target . '\033[0m"'
+    silent w
+    exec "make " . a:target . " " . a:args
+endfunction
 
-"" Remap the tab key to do autocompletion or indentation depending on the
-"" context (from http://www.vim.org/tips/tip.php?tip_id=102)
-"function! InsertTabWrapper()
-    "let col = col('.') - 1
-    "if !col || getline('.')[col - 1] !~ '\k'
-        "return "\<tab>"
-    "else
-        "return "\<c-p>"
-    "endif
-"endfunction
-""inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-"inoremap <s-tab> <c-n>
+function! ClassToFilename(class_name)
+    let understored_class_name = substitute(a:class_name, '\(.\)\(\u\)', '\1_\U\2', 'g')
+    let file_name = substitute(understored_class_name, '\(\u\)', '\L\1', 'g')
+    return file_name
+endfunction
 
-"function! Smart_TabComplete()
-    "let line = getline('.')                         " curline
-    "let substr = strpart(line, -1, col('.')+1)      " from start to cursor
-    "let substr = matchstr(substr, "[^ \t]*$")       " word till cursor
-    "if (strlen(substr)==0)                          " nothing to match on empty string
-        "return "\<tab>"
-    "endif
-    "let has_period = match(substr, '\.') != -1      " position of period, if any
-    "let has_slash = match(substr, '\/') != -1       " position of slash, if any
-    "if (!has_period && !has_slash)
-        "return "\<C-X>\<C-P>"                         " existing text matching
-    "elseif ( has_slash )
-        "return "\<C-X>\<C-F>"                         " file matching
-    "else
-        "return "\<C-X>\<C-O>"                         " plugin matching
-    "endif
-"endfunction
-                                                      
-"inoremap <tab> <c-r>=Smart_TabComplete()<CR>
-"" When hitting <;>, complete a snippet if there is one; else, insert an actual
-"" <;>
-"function! InsertSnippetWrapper()
-    "let inserted = TriggerSnippet()
-    "if inserted == "\<tab>"
-        "return "§"
-    "else
-        "return inserted
-    "endif
-"endfunction
-"inoremap § <c-r>=InsertSnippetWrapper()<cr>
+function! ModuleTestPath()
+    let file_path = @%
+    let components = split(file_path, '/')
+    let path_without_extension = substitute(file_path, '\.py$', '', '')
+    let test_path = 'tests/unit/' . path_without_extension
+    return test_path
+endfunction
 
-""if version >= 700
-    ""autocmd FileType python set omnifunc=pythoncomplete#Complete
-    ""let Tlist_Ctags_Cmd='~/bin/ctags'
-""endif
+function! NameOfCurrentClass()
+    let save_cursor = getpos(".")
+    normal $<cr>
+    call PythonDec('class', -1)
+    let line = getline('.')
+    call setpos('.', save_cursor)
+    let match_result = matchlist(line, ' *class \+\(\w\+\)')
+    let class_name = ClassToFilename(match_result[1])
+    return class_name
+endfunction
 
-"function! RunTests(target, args)
-    """"silent ! echo
-    """"exec 'silent ! echo -e "\033[1;36mRunning tests in ' . a:target . '\033[0m"'
-    """"silent w
-    """"exec "make " . a:target . " " . a:args
-"endfunction
+function! TestFileForCurrentClass()
+    let class_name = NameOfCurrentClass()
+    let test_file_name = ModuleTestPath() . '/test_' . class_name . '.py'
+    return test_file_name
+endfunction
 
-"function! ClassToFilename(class_name)
-    """let understored_class_name = substitute(a:class_name, '\(.\)\(\u\)', '\1_\U\2', 'g')
-    """let file_name = substitute(understored_class_name, '\(\u\)', '\L\1', 'g')
-    """return file_name
-"endfunction
+function! TestModuleForCurrentFile()
+    let test_path = ModuleTestPath()
+    let test_module = substitute(test_path, '/', '.', 'g')
+    return test_module
+endfunction
 
-"function! ModuleTestPath()
-    """""let file_path = @%
-    """""let components = split(file_path, '/')
-    """""let path_without_extension = substitute(file_path, '\.py$', '', '')
-    """""let test_path = 'tests/unit/' . path_without_extension
-    """""return test_path
-"endfunction
+function! RunTestsForFile(args)
+    if @% =~ 'test_'
+        call RunTests('%', a:args)
+    else
+        let test_file_name = TestModuleForCurrentFile()
+        call RunTests(test_file_name, a:args)
+    endif
+endfunction
 
-"function! NameOfCurrentClass()
-    """"""""let save_cursor = getpos(".")
-    """"""""normal $<cr>
-    """"""""call PythonDec('class', -1)
-    """"""""let line = getline('.')
-    """"""""call setpos('.', save_cursor)
-    """"""""let match_result = matchlist(line, ' *class \+\(\w\+\)')
-    """"""""let class_name = ClassToFilename(match_result[1])
-    """"""""return class_name
-"endfunction
+function! RunAllTests(args)
+    silent ! echo
+    silent ! echo -e "\033[1;36mRunning all unit tests\033[0m"
+    silent w
+    exec "make!" . a:args
+endfunction
 
-"function! TestFileForCurrentClass()
-    """let class_name = NameOfCurrentClass()
-    """let test_file_name = ModuleTestPath() . '/test_' . class_name . '.py'
-    """return test_file_name
-"endfunction
+function! JumpToError()
+    if getqflist() != []
+        for error in getqflist()
+            if error['valid']
+                break
+            endif
+        endfor
+        let error_message = substitute(error['text'], '^ *', '', 'g')
+        silent cc!
+        exec ":sbuffer " . error['bufnr']
+        call RedBar()
+        echo error_message
+    else
+        call GreenBar()
+        echo "All tests passed"
+    endif
+endfunction
 
-"function! TestModuleForCurrentFile()
-    """let test_path = ModuleTestPath()
-    """let test_module = substitute(test_path, '/', '.', 'g')
-    """return test_module
-"endfunction
+function! RedBar()
+    hi RedBar ctermfg=white ctermbg=red guibg=red
+    echohl RedBar
+    echon repeat(" ",&columns - 1)
+    echohl
+endfunction
 
-"function! RunTestsForFile(args)
-    """"""if @% =~ 'test_'
-        """"""call RunTests('%', a:args)
-    """"""else
-        """"""let test_file_name = TestModuleForCurrentFile()
-        """"""call RunTests(test_file_name, a:args)
-    """"""endif
-"endfunction
+function! GreenBar()
+    hi GreenBar ctermfg=white ctermbg=green guibg=green
+    echohl GreenBar
+    echon repeat(" ",&columns - 1)
+    echohl
+endfunction
 
-"function! RunAllTests(args)
-    """"silent ! echo
-    """"silent ! echo -e "\033[1;36mRunning all unit tests\033[0m"
-    """"silent w
-    """"exec "make!" . a:args
-"endfunction
+function! JumpToTestsForClass()
+    exec 'e ' . TestFileForCurrentClass()
+endfunction
 
-"function! JumpToError()
-    """""""""""""""if getqflist() != []
-        """""""""""""""for error in getqflist()
-            """""""""""""""if error['valid']
-                """""""""""""""break
-            """""""""""""""endif
-        """""""""""""""endfor
-        """""""""""""""let error_message = substitute(error['text'], '^ *', '', 'g')
-        """""""""""""""silent cc!
-        """""""""""""""exec ":sbuffer " . error['bufnr']
-        """""""""""""""call RedBar()
-        """""""""""""""echo error_message
-    """""""""""""""else
-        """""""""""""""call GreenBar()
-        """""""""""""""echo "All tests passed"
-    """""""""""""""endif
-"endfunction
-
-"function! RedBar()
-    """"hi RedBar ctermfg=white ctermbg=red guibg=red
-    """"echohl RedBar
-    """"echon repeat(" ",&columns - 1)
-    """"echohl
-"endfunction
-
-"function! GreenBar()
-    """"hi GreenBar ctermfg=white ctermbg=green guibg=green
-    """"echohl GreenBar
-    """"echon repeat(" ",&columns - 1)
-    """"echohl
-"endfunction
-
-"function! JumpToTestsForClass()
-    "exec 'e ' . TestFileForCurrentClass()
-"endfunction
-"
 let mapleader=","
 " nnoremap <leader>m :call RunTestsForFile('--machine-out')<cr>:redraw<cr>:call JumpToError()<cr>
 " nnoremap <leader>M :call RunTestsForFile('')<cr>
@@ -320,15 +302,13 @@ let mapleader=","
 " nnoremap <leader>a :call RunAllTests('')<cr>:redraw<cr>:call JumpToError()<cr>
 " nnoremap <leader>A :call RunAllTests('')<cr>
 
-"nnoremap <leader>t :call RunAllTests('')<cr>:redraw<cr>:call JumpToError()<cr>
-"nnoremap <leader>T :call RunAllTests('')<cr>
+" nnoremap <leader>t :call RunAllTests('')<cr>:redraw<cr>:call JumpToError()<cr>
+" nnoremap <leader>T :call RunAllTests('')<cr>
 
 " nnoremap <leader>t :call JumpToTestsForClass()<cr>
-" nnoremap <leader><leader> <c-^>
 
 " highlight current line
-"set cursorline
-"hi CursorLine cterm=NONE ctermbg=black
+set cursorline
 
 set cmdheight=2
 
@@ -339,29 +319,34 @@ set guioptions-=r
 " Use <c-h> for snippets
 let g:NERDSnippets_key = '<c-h>'
 
-"augroup myfiletypes
+augroup myfiletypes
   "clear old autocmds in group
-  "autocmd!
+  autocmd!
   "for ruby, autoindent with two spaces, always expand tabs
-  "autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass set ai sw=2 sts=2 et
-  "autocmd FileType python set sw=4 sts=4 et
-"augroup END
-"
+  autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass,cucumber set ai sw=2 sts=2 et
+  autocmd FileType python set sw=4 sts=4 et
+augroup END
+
 set switchbuf=useopen
 
-"autocmd BufRead,BufNewFile *.html source ~/.vim/indent/html_grb.vim
-"autocmd FileType htmldjango source ~/.vim/indent/html_grb.vim
+autocmd BufRead,BufNewFile *.html source ~/.vim/indent/html_grb.vim
+autocmd FileType htmldjango source ~/.vim/indent/html_grb.vim
 autocmd! BufRead,BufNewFile *.sass setfiletype sass 
 
 " Map ,e and ,v to open files in the same directory as the current file
-map <leader>e :edit <C-R>=expand("%:h")<cr>/
-map <leader>v :view <C-R>=expand("%:h")<cr>/
-
-"if has("python")
-    "source ~/.vim/ropevim/rope.vim
-"endif
-
-autocmd BufRead,BufNewFile *.feature set sw=4 sts=4 et
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+map <leader>e :edit %%
+map <leader>v :view %%
+function! RenameFile()
+    let old_name = expand('%')
+    let new_name = input('New file name: ', expand('%'))
+    if new_name != '' && new_name != old_name
+        exec ':saveas ' . new_name
+        exec ':silent !rm ' . old_name
+        redraw!
+    endif
+endfunction
+map <leader>n :call RenameFile()<cr>
 
 set number
 set numberwidth=5
@@ -415,196 +400,191 @@ endfunction
 
 vnoremap <leader>rv :call ExtractVariable()<cr>
 nnoremap <leader>ri :call InlineVariable()<cr>
-" Find comment
-map <leader>/# /^ *#<cr>
-" Find function
-map <leader>/f /^ *def\><cr>
-" Find class
-map <leader>/c /^ *class\><cr>
-" Find if
-map <leader>/i /^ *if\><cr>
-" Delete function
-" \%$ means 'end of file' in vim-regex-speak
-map <leader>df d/\(^ *def\>\)\\|\%$<cr>
-com! FindLastImport :execute'normal G<CR>' | :execute':normal ?^\(from\|import\)\><CR>'
-map <leader>/m :FindLastImport<cr>
+" " Find comment
+" map <leader>/# /^ *#<cr>
+" " Find function
+" map <leader>/f /^ *def\><cr>
+" " Find class
+" map <leader>/c /^ *class\><cr>
+" " Find if
+" map <leader>/i /^ *if\><cr>
+" " Delete function
+" " \%$ means 'end of file' in vim-regex-speak
+" map <leader>df d/\(^ *def\>\)\\|\%$<cr>
+" com! FindLastImport :execute'normal G<CR>' | :execute':normal ?^\(from\|import\)\><CR>'
+" map <leader>/m :FindLastImport<cr>
 
-map <leader>ws :%s/ *$//g<cr><c-o><cr>
+command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
 
 " Always show tab bar
 set showtabline=2
-
-map <leader>\t :CommandT<cr>
 
 augroup mkd
     autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:&gt;
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
 augroup END
 
-"set makeprg=python\ -m\ nose.core\ --machine-out
-"autocmd FileType javascript set makeprg=cat\ %\ \\\|\ /usr/local/bin/js\ /Users/emir/.vim/js/mylintrun.js\ %
-"autocmd FileType javascript set errorformat=%f:%l:%c:%m
+set makeprg=python\ -m\ nose.core\ --machine-out
 
 map <silent> <leader>y :<C-u>silent '<,'>w !pbcopy<CR>
 
 " Make <leader>' switch between ' and "
 nnoremap <leader>' ""yls<c-r>={'"': "'", "'": '"'}[@"]<cr><esc>
 
-"filetype plugin on
-set ofu=syntaxcomplete#Complete
-"It will insert the longest common prefix of all the suggestions, then you can
-"type and delete to narrow down or expand results.
-set completeopt+=longest
-"nerd tree plugin"
-map <F3> :%s/^\s*\(NSLog.*\)/\/\/\1/g<CR>
-  
-"function! DeProtofy()
-  """"""""""""Get current line...
-  """""""""""let curr_line = getline('.')
-  """""""""""let replacement = substitute(curr_line,'ClassName','Class','g')
-  """""""""""let replacement = substitute(replacement,'readAttribute','attr','g')
-  """""""""""let replacement = substitute(replacement,'writeAttribute','attr','g')
-  """""""""""let replacement = substitute(replacement,'setStyle','css','g')
-  """""""""""let replacement = substitute(replacement,'getStyle','css','g')
-  """""""""""let replacement = substitute(replacement,'select','find','g')
-  """""""""""let replacement = substitute(replacement,'$(','(jQuery ','g')
-  """""""""""let replacement = substitute(replacement,'innerHTML =','html','g')
-  """""""""""call setline('.', replacement)
-"endfunction
+" Map keys to go to specific files
+map <leader>gr :topleft :split config/routes.rb<cr>
+function! ShowRoutes()
+  " Requires 'scratch' plugin
+  :topleft 100 :split __Routes__
+  " Make sure Vim doesn't write __Routes__ as a file
+  :set buftype=nofile
+  " Delete everything
+  :normal 1GdG
+  " Put routes output in buffer
+  :0r! rake -s routes
+  " Size window to number of lines (1 plus rake output length)
+  :exec ":normal " . line("$") . "_ "
+  " Move cursor to bottom
+  :normal 1GG
+  " Delete empty trailing line
+  :normal dd
+endfunction
+map <leader>gR :call ShowRoutes()<cr>
+map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
+map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
+map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
+map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
+map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
+map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
+map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
+map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
+map <leader>gg :topleft 100 :split Gemfile<cr>
+map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
+map <leader>F :CommandTFlush<cr>\|:CommandT %%<cr>
 
-"function! DeAmperfy()
-  """"""""Get current line...
-  """""""let curr_line = getline('.')
-  """"""""Replace raw ampersands...
-  """""""let replacement = substitute(curr_line,'=','&amp;','g')
+nnoremap <leader><leader> <c-^>
 
-  """"""""Update current line...
-  """""""call setline('.', replacement)
-"endfunction
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Running tests
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"map <F7> :call DeProtofy()<CR>
-"so obj_matchbracket.vim
-"so  /Users/emir/.vim/ftplugin/obj_matchbracket.vim
-"info file"
-"folding
-"nmap <F6> /}<CR>zf%<ESC>:nohlsearch<CR>
-"set foldmethod=syntax
-set foldmethod=indent
-"au BufWinLeave * mkview
-"au BufWinEnter * silent loadview
-au BufNewFile,BufRead *.cpp,*.c,*.h,*.java,*.m syn region myCComment start="/\*" end="\*/" fold keepend transparent
-"vmap <silent> w <Plug>CamelCaseMotion_w
-"vmap <silent> b <Plug>CamelCaseMotion_b
-"vmap <silent> e <Plug>CamelCaseMotion_e
+" vim-makegreen binds itself to ,t unless something else is bound to its
+" function.
+map <leader>\dontstealmymapsmakegreen :w\|:call MakeGreen('spec')<cr>
 
+function! RunTests(filename)
+    " Write the file and run tests for the given filename
+    :w
+    :silent !echo;echo;echo;echo;echo
+    if filereadable("script/test")
+        exec ":!script/test " . a:filename
+    else
+        exec ":!bundle exec rspec " . a:filename
+    end
+endfunction
 
-"let g:SuperTabDefaultCompletionType = "context"
-    ":args */*.*
-" idea    map <C-1> /[BBReportHelper accessoryNoneAllRowsInTable:tableView inSection:0];
-"    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;<CR>
+function! SetTestFile()
+    " Set the spec file that tests will be run for.
+    let t:grb_test_file=@%
+endfunction
 
+function! RunTestFile(...)
+    if a:0
+        let command_suffix = a:1
+    else
+        let command_suffix = ""
+    endif
 
+    " Run the tests for the previously-marked file.
+    let in_spec_file = match(expand("%"), '_spec.rb$') != -1
+    if in_spec_file
+        call SetTestFile()
+    elseif !exists("t:grb_test_file")
+        return
+    end
+    call RunTests(t:grb_test_file . command_suffix)
+endfunction
 
-""handle split"
-"map <C-J> <C-W>j<C-W>_
-"map <C-K> <C-W>k<C-W>_
-"map <C-H> <C-W>h<C-W>_
-"map <C-L> <C-W>l<C-W>_
-"set wmh=0
+function! RunNearestTest()
+    let spec_line_number = line('.')
+    call RunTestFile(":" . spec_line_number)
+endfunction
 
+map <leader>t :call RunTestFile()<cr>
+map <leader>T :call RunNearestTest()<cr>
+map <leader>a :call RunTests('spec')<cr>
+map <leader>c :w\|:!cucumber<cr>
+map <leader>C :w\|:!cucumber --profile wip<cr>
 
+set winwidth=84
+" We have to have a winheight bigger than we want to set winminheight. But if
+" we set winheight to be huge before winminheight, the winminheight set will
+" fail.
+set winheight=5
+set winminheight=5
+set winheight=999
 
-"-------------------------------------------------------------------------------
-"-- AUTOCOMMANDS   joeldotfiles
-"-------------------------------------------------------------------------------
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+nnoremap <c-n> :let &wh = (&wh == 999 ? 10 : 999)<CR><C-W>=
 
-" enable some important things
+function! ShowColors()
+  let num = 255
+  while num >= 0
+    exec 'hi col_'.num.' ctermbg='.num.' ctermfg=white'
+    exec 'syn match col_'.num.' "ctermbg='.num.':...." containedIn=ALL'
+    call append(0, 'ctermbg='.num.':....')
+    let num = num - 1
+  endwhile
+endfunction
 
-" uncomment if you want to mark the current cursorline,
-" column with a different color
-"autocmd WinEnter * setlocal cursorcolumn
-"autocmd BufEnter * setlocal cursorcolumn
-"autocmd WinEnter * setlocal cursorline
-"autocmd BufEnter * setlocal cursorline
-"hi cursorcolumn ctermbg=247 ctermfg=?? guibg=grey70 guifg=??
-"hi cursorline ctermbg=247 guibg=grey70
+command! -range Md5 :echo system('echo '.shellescape(join(getline(<line1>, <line2>), '\n')) . '| md5')
 
-"autocmd InsertLeave * call s:LeaveInsert()
-"autocmd InsertEnter * call s:EnterInsert()
+imap <c-l> <space>=><space>
 
+function! OpenChangedFiles()
+  only " Close all windows, unless they're modified
+  let status = system('git status -s | grep "^ \?\(M\|A\)" | cut -d " " -f 3')
+  let filenames = split(status, "\n")
+  exec "edit " . filenames[0]
+  for filename in filenames[1:]
+    exec "sp " . filename
+  endfor
+endfunction
+command! OpenChangedFiles :call OpenChangedFiles()
 
-au BufRead,BufNewFile *.json set filetype=json
-au! Syntax json source /Users/emir/.vim/ftplugin/json.vim
-set autowriteall
-:setlocal tags=TAGS
-let &tags="tags;./tags"
-let s:tfs=split(globpath(&rtp, "tags/*.tags"),"\n")
-for s:tf in s:tfs
-     let &tags.=",".expand(escape(escape(s:tf, " "), " "))
-   endfor
-
-
-let g:speckyBannerKey        = "<C-S>b"
-let g:speckyQuoteSwitcherKey = "<C-S>'"
-let g:speckyRunRdocKey       = "<C-S>r"
-let g:speckySpecSwitcherKey  = "<C-S>x"
-let g:speckyRunSpecKey       = "<C-S>s"
-let g:speckyRunRdocCmd       = "fri -L -f plain"
-let g:speckyWindowType       = 2
-
-"" change background depending on mode
-"function! s:EnterInsert()
-    ""highlight Normal guibg=#442222
-    ""highlight Normal guibg=#000000
-"endfunction
-
-"function! s:LeaveInsert()
-  ""molokai"
-   ""hi Normal          guifg=#F8F8F2 guibg=#1B1D1E
-"endfunction
-
-"http://stackoverflow.com/questions/1979520/auto-open-nerdtree-in-every-tab
-"autocmd VimEnter *.rb NERDTree
-"autocmd VimEnter *.rb TlistToggle
-"filetype off
-autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
-set viminfo='100,f1
-
-"dictinary
-set dictionary= "/usr/share/dict/words"
-"setlocal spell spelllang=en_us
-map <f4> :CoffeeCompile <CR>
-" Vimcasts #1
-" Shortcut to rapidly toggle `set list`
-nmap <leader>l :set list!<CR>
-"  
-"  " Use the same symbols as TextMate for tabstops and EOLs
-set listchars=tab:▸\ ,eol:¬
-" Source the vimrc file after saving it
-if has("autocmd")
-  autocmd bufwritepost .vimrc source $MYVIMRC
+if &diff
+  nmap <c-h> :diffget 1<cr>
+  nmap <c-l> :diffget 3<cr>
+  nmap <c-k> [cz.
+  nmap <c-j> ]cz.
+  set nonumber
 endif
-" edit the vimrc file after saving it
-nmap <leader>vi :tabedit $MYVIMRC<CR>
 
+" In these functions, we don't use the count argument, but the map referencing
+" v:count seems to make it work. I don't know why.
+function! ScrollOtherWindowDown(count)
+  normal! 
+  normal! 
+  normal! 
+endfunction
+function! ScrollOtherWindowUp(count)
+  normal! 
+  normal! 
+  normal! 
+endfunction
+nnoremap g<c-y> :call ScrollOtherWindowUp(v:count)<cr>
+nnoremap g<c-e> :call ScrollOtherWindowDown(v:count)<cr>
 
-nmap <leader>nf :NERDTreeFind<CR>
-" open current window maximized
-nmap t% :tabedit %<CR>
-nmap td :tabclose<CR>
+set shell=bash
 
-" next buffer 
-nnoremap <C-n> :bnext<CR>
-nnoremap <C-p> :bprevious<CR>
+" Can't be bothered to understand the difference between ESC and <c-c> in
+" insert mode
+imap <c-c> <esc>
 
-" buffexplorer 
-nnoremap <C-b> :BufExplorer<CR>
-
-""improve autocomplete menu color
-highlight Pmenu ctermbg=238 gui=bold
-
-
-
+command! InsertTime :normal a<c-r>=strftime('%F %H:%M:%S.0 %z')<cr>
 
 
 filetype off
@@ -676,6 +656,7 @@ Bundle "Markdown"
 "" Color 
 Bundle "https://github.com/tpope/vim-vividchalk.git"
 Bundle "https://github.com/nelstrom/vim-mac-classic-theme.git"
+Bundle "https://github.com/altercation/vim-colors-solarized"
 
 "" Git integration
 Bundle "git.zip"
@@ -747,8 +728,48 @@ Bundle "https://github.com/robbyrussell/oh-my-zsh.git"
 filetype plugin indent on " Automatically detect file types.
 set ofu=syntaxcomplete#Complete
 syntax on " enable syntax
+
+
+set viminfo='100,f1
+
+"dictinary
+set dictionary= "/usr/share/dict/words"
+"setlocal spell spelllang=en_us
+" Vimcasts #1
+" Shortcut to rapidly toggle `set list`
+nmap <leader>l :set list!<CR>
+"  
+"  " Use the same symbols as TextMate for tabstops and EOLs
+set listchars=tab:▸\ ,eol:¬
+" Source the vimrc file after saving it
+if has("autocmd")
+  autocmd bufwritepost .vimrc source $MYVIMRC
+endif
+" edit the vimrc file after saving it
+nmap <leader>vi :tabedit $MYVIMRC<CR>
+
+
+nmap <leader>nf :NERDTreeFind<CR>
+" open current window maximized
+nmap t% :tabedit %<CR>
+nmap td :tabclose<CR>
+
+" next buffer 
+nnoremap <C-n> :bnext<CR>
+nnoremap <C-p> :bprevious<CR>
+
+" buffexplorer 
+nnoremap <C-b> :BufExplorer<CR>
+
+""improve autocomplete menu color
+highlight Pmenu ctermbg=238 gui=bold
+
 "fast color change
 noremap <leader>c1  :color moria<CR>
 noremap <leader>c2  :color vividchalk<CR>
 noremap <leader>c3  :color molokai<CR>
 noremap <leader>c4  :color macvim<CR>
+noremap <leader>c5  :color solarize<CR>
+noremap <leader>c6  :set background=light<CR>
+noremap <leader>c7  :set background=dark<CR>
+" GRB: set the color scheme
