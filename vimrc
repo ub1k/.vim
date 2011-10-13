@@ -658,16 +658,28 @@ let g:tagbar_compact = 1
 let g:tagbar_expand = 1
 let g:tagbar_autoshowtag = 1
 let g:tagbar_left = 1
-" let g:tagbar_type_objc = {
-"     \ 'ctagstype' : 'objc',
-"     \ 'kinds'     : [
-"         \ 'c:class',
-"         \ 'p:property',
-"         \ 'm:method',
-"         \ 'i:interface'
-"     \ ],
-"     \ 'sro'        : '.'
-" \ }
+
+" only variables and f = () -> functions, no class members, methods etc (yet)
+let g:tagbar_type_coffee = {
+      \ 'ctagstype' : 'coffee',
+      \ 'kinds' : [
+      \ 'c:class',
+      \ 'n:namespace',
+      \ 'f:functions',
+      \ 'm:methods',
+      \ 'v:variables'
+      \ ],
+      \ }
+let g:tagbar_type_objc = {
+    \ 'ctagstype' : 'objc',
+    \ 'kinds'     : [
+        \ 'c:class',
+        \ 'p:property',
+        \ 'm:method',
+        \ 'i:interface'
+    \ ],
+    \ 'sro'        : '.'
+\ }
 " Display panel with \y (or ,y
 noremap <silent> <Leader>y :TagbarToggle<CR>
 " Bundle "https://github.com/vim-scripts/taglist.vim.git" 
