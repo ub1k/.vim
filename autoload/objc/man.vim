@@ -10,6 +10,8 @@ fun objc#man#Completion(ArgLead, CmdLine, CursorPos)
 	return system('grep -ho "^'.a:ArgLead.'\w*" ~/.vim/lib/cocoa_indexes/*.txt'.
 	            \ "| perl -e 'print sort {length $a <=> length $b} <>'")
 endf
+com.apple.adc.documentation.AppleiOS4_3.iOSLibrary.docset/Cont
+ents/Resources/Documents/index.html 
 
 let s:docsets =  []
 let locations = [
@@ -17,7 +19,7 @@ let locations = [
 			\	'alias': 'Leopard'},
 			\	{'path': '/Developer/Documentation/DocSets/com.apple.adc.documentation.AppleSnowLeopard.CoreReference.docset',
 			\	'alias': 'Snow Leopard'},
-			\	{'path': '/Developer/Platforms/iPhoneOS.platform/Developer/Documentation/DocSets/com.apple.adc.documentation.AppleiOS4_3.iOSLibrary.docset',
+			\	{'path': '/Library/Developer/Documentation/DocSets/com.apple.adc.documentation.AppleiOS4_3.iOSLibrary.docset',
 			\	'alias': 'iPhone 4.3'}
 			\	]
 for location in locations

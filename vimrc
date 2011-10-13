@@ -62,7 +62,8 @@ if &t_Co > 2 || has("gui_running")
   syntax on
   set hlsearch
   " set guifont=Monaco:h14
-  set guifont=Inconsolata-dz:h14
+  set guifont=Inconsolata:h14
+  " GRB: set window size"
 endif
 
 " Only do this part when compiled with support for autocommands.
@@ -73,6 +74,7 @@ if has("autocmd")
   " 'cindent' is on in C files, etc.
   " Also load indent files, to automatically do language-dependent indenting.
   filetype plugin indent on
+  au BufNewFile,BufRead *.ejs set filetype=html
 
   " Put these in an autocmd group, so that we can delete them easily.
   augroup vimrcEx
@@ -109,6 +111,7 @@ set laststatus=2
 set showmatch
 set incsearch
 
+" folding
 " GRB: wrap lines at 78 characters
 " set textwidth=78
 
@@ -138,10 +141,10 @@ if has("gui_running")
 
   " GRB: set window size"
   :set lines=100
-  :set columns=171
+  :set columns=300
 
   " GRB: highlight current line"
-  :set cursorline
+  " :set cursorline
 endif
 
 
@@ -178,8 +181,8 @@ function! InsertTabWrapper()
         return "\<c-p>"
     endif
 endfunction
-inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-inoremap <s-tab> <c-n>
+" inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+" inoremap <s-tab> <c-n>
 
 " When hitting <;>, complete a snippet if there is one; else, insert an actual
 " <;>
@@ -194,7 +197,6 @@ endfunction
 
 if version >= 700
     autocmd FileType python set omnifunc=pythoncomplete#Complete
-    let Tlist_Ctags_Cmd='~/bin/ctags'
 endif
 
 function! RunTests(target, args)
@@ -308,7 +310,7 @@ let mapleader=","
 " nnoremap <leader>t :call JumpToTestsForClass()<cr>
 
 " highlight current line
-set cursorline
+" set cursorline
 
 set cmdheight=2
 
@@ -323,7 +325,7 @@ augroup myfiletypes
   "clear old autocmds in group
   autocmd!
   "for ruby, autoindent with two spaces, always expand tabs
-  autocmd FileType ruby,haml,eruby,yaml,html,javascript,sass,cucumber set ai sw=2 sts=2 et
+  autocmd FileType snippet,ruby,haml,eruby,yaml,html,javascript,sass,cucumber,objc,jasmine.coffee set ai sw=2 sts=2 et
   autocmd FileType python set sw=4 sts=4 et
 augroup END
 
@@ -336,6 +338,7 @@ autocmd! BufRead,BufNewFile *.sass setfiletype sass
 " Map ,e and ,v to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
+map <leader>cl :Class 
 map <leader>v :view %%
 function! RenameFile()
     let old_name = expand('%')
@@ -516,19 +519,19 @@ map <leader>a :call RunTests('spec')<cr>
 map <leader>c :w\|:!cucumber<cr>
 map <leader>C :w\|:!cucumber --profile wip<cr>
 
-set winwidth=84
+" set winwidth=84
 " We have to have a winheight bigger than we want to set winminheight. But if
 " we set winheight to be huge before winminheight, the winminheight set will
 " fail.
-set winheight=5
-set winminheight=5
-set winheight=999
+" set winheight=5
+" set winminheight=5
+" set winheight=999
 
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
-nnoremap <c-n> :let &wh = (&wh == 999 ? 10 : 999)<CR><C-W>=
+" nnoremap <c-n> :let &wh = (&wh == 999 ? 10 : 999)<CR><C-W>=
 
 function! ShowColors()
   let num = 255
@@ -578,7 +581,7 @@ endfunction
 nnoremap g<c-y> :call ScrollOtherWindowUp(v:count)<cr>
 nnoremap g<c-e> :call ScrollOtherWindowDown(v:count)<cr>
 
-set shell=bash
+set shell=zsh
 
 " Can't be bothered to understand the difference between ESC and <c-c> in
 " insert mode
@@ -624,6 +627,8 @@ Bundle "https://github.com/tpope/vim-rails.git"
 Bundle "https://github.com/tpope/vim-bundler.git"
 Bundle "https://github.com/tpope/vim-rvm.git"
 Bundle "https://github.com/tpope/vim-abolish.git"
+Bundle "https://github.com/vim-scripts/project.tar.gz.git" 
+Bundle "https://github.com/vim-scripts/a.vim.git" 
 noremap <leader>rc :Rcontroller<CR>
 noremap <leader>rm :Rmodel<CR>
 noremap <leader>rmi :Rmigration<CR>
@@ -632,14 +637,42 @@ noremap <leader>rv :Rview<CR>
 
 Bundle "https://github.com/pangloss/vim-javascript.git"
 Bundle "https://github.com/kchmck/vim-coffee-script.git"
+Bundle "https://github.com/eraserhd/vim-kiwi.git"
+" Bundle "https://github.com/msanders/cocoa.vim"
+
 map <f4> :CoffeeCompile <CR>
+" with bare option 
+autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
 Bundle "http://github.com/claco/jasmine.vim.git"
 Bundle "http://github.com/mattn/zencoding-vim.git"
 Bundle "https://github.com/scrooloose/nerdtree.git"
+nmap <leader>nf :NERDTreeFind<CR>
 Bundle "Specky"
 Bundle "Tagbar"
-au BufRead,BufNewFile *.js TagBarOpen
-let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
+" au BufRead,BufNewFile *.js TagbarOpen
+" autocmd FileType objc :TagbarOpen
+let g:tagbar_ctags_bin='/usr/local/bin/ctags'  " Proper Ctags locations
+let g:tagbar_width=30                          " Default is 40, seems too wide
+let g:tagbar_autofocus = 1
+let g:tagbar_compact = 1
+let g:tagbar_expand = 1
+let g:tagbar_autoshowtag = 1
+let g:tagbar_left = 1
+" let g:tagbar_type_objc = {
+"     \ 'ctagstype' : 'objc',
+"     \ 'kinds'     : [
+"         \ 'c:class',
+"         \ 'p:property',
+"         \ 'm:method',
+"         \ 'i:interface'
+"     \ ],
+"     \ 'sro'        : '.'
+" \ }
+" Display panel with \y (or ,y
+noremap <silent> <Leader>y :TagbarToggle<CR>
+" Bundle "https://github.com/vim-scripts/taglist.vim.git" 
+" noremap <silent> <Leader>tl :TlistToggle<CR>
+" autocmd BufLeave *LIST__ silent TlistClose 
 
 "
 "" Snippets
@@ -647,6 +680,8 @@ Bundle "git://github.com/MarcWeber/vim-addon-mw-utils.git"
 Bundle "git://github.com/tomtom/tlib_vim.git"
 Bundle "git://github.com/honza/snipmate-snippets.git"
 Bundle "git://github.com/garbas/vim-snipmate.git"
+" let g:snips_trigger_key='<c-space>'
+" let g:snips_trigger_key_backwards='<s-c-space>'
 Bundle "https://github.com/shanejonas/coffeeScript-VIM-Snippets.git"
 "
 "" Syntax highlight
@@ -661,6 +696,7 @@ Bundle "https://github.com/altercation/vim-colors-solarized"
 "" Git integration
 Bundle "git.zip"
 Bundle "https://github.com/tpope/vim-fugitive.git"
+set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 "
 "" (HT|X)ml tool
 Bundle "ragtag.vim"
@@ -671,12 +707,39 @@ Bundle "Toggle"
 Bundle "http://github.com/tsaleh/vim-matchit.git"
 Bundle "repeat.vim"
 Bundle "surround.vim"
-Bundle "SuperTab"
 Bundle "file-line"
 Bundle "Align"
+Bundle "AutoComplPop"
+let g:acp_enableAtStartup = 0
+
+Bundle "neocomplcache"
+let g:neocomplcache_enable_at_startup = 1
+let g:neocomplcache_auto_completion_start_length = 5
+let g:neocomplcache_enable_ignore_case			 = 0
+let g:neocomplcache_enable_auto_select = 0
+let g:neocomplcache_cursor_hold_i_time = 300 			
+let g:neocomplcache_enable_camel_case_completion = 1
+let g:neocomplcache_ctags_program				= '/usr/local/bin/ctags'  " Proper Ctags locations
+imap <C-k>     <Plug>(neocomplcache_snippets_expand)
+smap <C-k>     <Plug>(neocomplcache_snippets_expand)
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string() 
+" SuperTab like snippets behavior.
+imap <expr><TAB> neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\<TAB>"
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplcache#close_popup()
+inoremap <expr><C-e>  neocomplcache#cancel_popup()
 "Bundle "https://github.com/topfunky/PeepOpen-EditorSupport.git"
 "
 "" FuzzyFinder
+
 Bundle "L9"
 Bundle "FuzzyFinder"
 let g:fuf_modesDisable = [] " {{{
@@ -749,22 +812,22 @@ endif
 nmap <leader>vi :tabedit $MYVIMRC<CR>
 
 
-nmap <leader>nf :NERDTreeFind<CR>
 " open current window maximized
 nmap t% :tabedit %<CR>
 nmap td :tabclose<CR>
 
 " next buffer 
-nnoremap <C-n> :bnext<CR>
-nnoremap <C-p> :bprevious<CR>
+" nnoremap <C-n> :bnext<CR>
+" nnoremap <C-p> :bprevious<CR>
 
 " buffexplorer 
-nnoremap <C-b> :BufExplorer<CR>
+" nnoremap <C-b> :BufExplorer<CR>
 
 ""improve autocomplete menu color
 highlight Pmenu ctermbg=238 gui=bold
 
 "fast color change
+color molokai
 noremap <leader>c1  :color moria<CR>
 noremap <leader>c2  :color vividchalk<CR>
 noremap <leader>c3  :color molokai<CR>
@@ -773,3 +836,12 @@ noremap <leader>c5  :color solarize<CR>
 noremap <leader>c6  :set background=light<CR>
 noremap <leader>c7  :set background=dark<CR>
 " GRB: set the color scheme
+"
+set foldmethod=indent
+"build ctags for the cwd
+nmap <leader>ct :!ctags -R --language-force=ObjectiveC  --extra=+q /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks ./Classes/*<CR>
+" au BufNewFile,BufRead *.cpp,*.c,*.h,*.java,*.m syn region myCComment start="\/**" end="\**\/" fold keepend transparent
+
+if filereadable("./project.vim")
+  source ./project.vim
+endif
