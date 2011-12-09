@@ -37,11 +37,14 @@ set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
+set nobackup
+set nowritebackup
+set noswapfile
 
 if has("vms")
   set nobackup		" do not keep a backup file, use versions instead
 else
-  set backup		" keep a backup file
+  set nobackup		" keep a backup file
 endif
 set ruler		" show the cursor position all the time
 set showcmd		" display incomplete commands
@@ -62,7 +65,9 @@ if &t_Co > 2 || has("gui_running")
   syntax on
   set hlsearch
   " set guifont=Monaco:h14
-  set guifont=Inconsolata:h14
+
+  set fuoptions=maxvert,maxhorz " Fill Screen With Window
+  set guifont=Inconsolata:h18
   " GRB: set window size"
 endif
 
@@ -102,9 +107,9 @@ endif " has("autocmd")
 
 " GRB: sane editing configuration"
 set expandtab
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set autoindent
 " set smartindent
 set laststatus=2
@@ -144,8 +149,11 @@ if has("gui_running")
   :set columns=300
 
   " GRB: highlight current line"
-  " :set cursorline
+  :set cursorline
+else
+  set t_Co=256
 endif
+:set cursorline
 
 
 " GRB: hide the toolbar in GUI mode
@@ -338,6 +346,7 @@ autocmd! BufRead,BufNewFile *.sass setfiletype sass
 " Map ,e and ,v to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
+" from objective vimmer"
 map <leader>cl :Class 
 map <leader>v :view %%
 function! RenameFile()
@@ -627,6 +636,7 @@ Bundle "https://github.com/tpope/vim-rails.git"
 Bundle "https://github.com/tpope/vim-bundler.git"
 Bundle "https://github.com/tpope/vim-rvm.git"
 Bundle "https://github.com/tpope/vim-abolish.git"
+Bundle "https://github.com/tpope/vim-unimpaired.git"
 Bundle "https://github.com/vim-scripts/project.tar.gz.git" 
 Bundle "https://github.com/vim-scripts/a.vim.git" 
 noremap <leader>rc :Rcontroller<CR>
@@ -642,7 +652,9 @@ Bundle "https://github.com/eraserhd/vim-kiwi.git"
 
 map <f4> :CoffeeCompile <CR>
 " with bare option 
-autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
+autocmd BufWritePost *.coffee CoffeeCompile! | cwindow
+autocmd BufWritePost *.coffee map <leader>d idebugger<esc>
+autocmd BufWritePost *.coffee map <leader>D :%s/debugger/g<CR>
 Bundle "http://github.com/claco/jasmine.vim.git"
 Bundle "http://github.com/mattn/zencoding-vim.git"
 Bundle "https://github.com/scrooloose/nerdtree.git"
@@ -711,9 +723,11 @@ Bundle "https://github.com/tpope/vim-fugitive.git"
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 "
 "" (HT|X)ml tool
+Bundle "https://github.com/godlygeek/tabular.git" 
 Bundle "ragtag.vim"
 "
 "" Utility
+Bundle "https://github.com/vim-scripts/Google-translator" 
 Bundle "grep.vim"
 Bundle "Toggle"
 Bundle "http://github.com/tsaleh/vim-matchit.git"
@@ -722,32 +736,37 @@ Bundle "surround.vim"
 Bundle "file-line"
 Bundle "Align"
 Bundle "AutoComplPop"
-let g:acp_enableAtStartup = 0
+let g:acp_enableAtStartup = 1
+" Bundle "https://github.com/vim-scripts/Conque-Shell.git" 
+" let g:ConqueTerm_TERM = 'vt100'
+"" experimental
+Bundle "https://github.com/eraserhd/vim-ios.git"
 
-Bundle "neocomplcache"
-let g:neocomplcache_enable_at_startup = 1
-let g:neocomplcache_auto_completion_start_length = 5
-let g:neocomplcache_enable_ignore_case			 = 0
-let g:neocomplcache_enable_auto_select = 0
-let g:neocomplcache_cursor_hold_i_time = 300 			
-let g:neocomplcache_enable_camel_case_completion = 1
-let g:neocomplcache_ctags_program				= '/usr/local/bin/ctags'  " Proper Ctags locations
-imap <C-k>     <Plug>(neocomplcache_snippets_expand)
-smap <C-k>     <Plug>(neocomplcache_snippets_expand)
-inoremap <expr><C-g>     neocomplcache#undo_completion()
-inoremap <expr><C-l>     neocomplcache#complete_common_string() 
-" SuperTab like snippets behavior.
-imap <expr><TAB> neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\<TAB>"
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
-inoremap <expr><C-y>  neocomplcache#close_popup()
-inoremap <expr><C-e>  neocomplcache#cancel_popup()
+
+" Bundle "neocomplcache"
+" let g:neocomplcache_enable_at_startup = 1
+" " let g:neocomplcache_auto_completion_start_length = 5
+" let g:neocomplcache_enable_ignore_case			 = 0
+" let g:neocomplcache_enable_auto_select = 0
+" let g:neocomplcache_cursor_hold_i_time = 500 			
+" let g:neocomplcache_enable_camel_case_completion = 1
+" let g:neocomplcache_ctags_program				= '/usr/local/bin/ctags'  " Proper Ctags locations
+" imap <C-k>     <Plug>(neocomplcache_snippets_expand)
+" smap <C-k>     <Plug>(neocomplcache_snippets_expand)
+" inoremap <expr><C-g>     neocomplcache#undo_completion()
+" inoremap <expr><C-l>     neocomplcache#complete_common_string() 
+" " SuperTab like snippets behavior.
+" imap <expr><TAB> neocomplcache#sources#snippets_complete#expandable() ? "\<Plug>(neocomplcache_snippets_expand)" : pumvisible() ? "\<C-n>" : "\<TAB>"
+" " Recommended key-mappings.
+" " <CR>: close popup and save indent.
+" inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
+" " <TAB>: completion.
+" inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" " <C-h>, <BS>: close popup and delete backword char.
+" inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+" inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+" inoremap <expr><C-y>  neocomplcache#close_popup()
+" inoremap <expr><C-e>  neocomplcache#cancel_popup()
 "Bundle "https://github.com/topfunky/PeepOpen-EditorSupport.git"
 "
 "" FuzzyFinder
@@ -792,7 +811,8 @@ vnoremap // :TComment<CR>
 "" Command-T
 Bundle "git://git.wincent.com/command-t.git"
 let g:CommandTMatchWindowAtTop=1 " show window at top
-map <leader>tb :CommandTBuffer<cr>
+map <leader>b :CommandTBuffer<cr>
+map <leader>f :CommandT<cr>
 "
 "" Navigation
 Bundle "http://github.com/gmarik/vim-visual-star-search.git"
@@ -827,6 +847,7 @@ nmap <leader>vi :tabedit $MYVIMRC<CR>
 " open current window maximized
 nmap t% :tabedit %<CR>
 nmap td :tabclose<CR>
+imap jQ jQuery
 
 " next buffer 
 " nnoremap <C-n> :bnext<CR>
