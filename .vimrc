@@ -67,7 +67,7 @@ if &t_Co > 2 || has("gui_running")
   " set guifont=Monaco:h14
 
   set fuoptions=maxvert,maxhorz " Fill Screen With Window
-  set guifont=Inconsolata:h18
+  set guifont=Inconsolata-dz:h14
   " GRB: set window size"
 endif
 
@@ -147,14 +147,17 @@ if has("gui_running")
   " GRB: set window size"
   :set lines=100
   :set columns=300
-
-  " GRB: highlight current line"
-  :set cursorline
-else
-  set t_Co=256
+" 
+"   " GRB: highlight current line"
+"   :set cursorline
 endif
-:set cursorline
 
+" GRB: set the color scheme
+:set t_Co=256 " 256 colors
+" :set background=dark
+:set background=light
+:color solarized
+" :color grb256
 
 " GRB: hide the toolbar in GUI mode
 if has("gui_running")
@@ -189,8 +192,8 @@ function! InsertTabWrapper()
         return "\<c-p>"
     endif
 endfunction
-" inoremap <tab> <c-r>=InsertTabWrapper()<cr>
-" inoremap <s-tab> <c-n>
+inoremap <tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <s-tab> <c-n>
 
 " When hitting <;>, complete a snippet if there is one; else, insert an actual
 " <;>
@@ -320,6 +323,7 @@ let mapleader=","
 " highlight current line
 " set cursorline
 
+set cursorline
 set cmdheight=2
 
 " Don't show scroll bars in the GUI
@@ -391,12 +395,12 @@ endfunction
 
 function! InlineVariable()
     " Copy the variable under the cursor into the 'a' register
-    " XXX: How do I copy into a variable so I don't pollute the registers?
+    :let l:tmp_a = @a
     :normal "ayiw
-    " It takes 4 diws to get the variable, equal sign, and surrounding
-    " whitespace. I'm not sure why. diw is different from dw in this respect.
-    :normal 4diw
+    " Delete variable and equals sign
+    :normal 2daW
     " Delete the expression into the 'b' register
+    :let l:tmp_b = @b
     :normal "bd$
     " Delete the remnants of the line
     :normal dd
@@ -408,6 +412,8 @@ function! InlineVariable()
     exec '/\<' . @a . '\>'
     " Replace that occurence with the text we yanked
     exec ':.s/\<' . @a . '\>/' . @b
+    :let @a = l:tmp_a
+    :let @b = l:tmp_b
 endfunction
 
 vnoremap <leader>rv :call ExtractVariable()<cr>
@@ -436,7 +442,7 @@ augroup mkd
     autocmd BufRead *.markdown  set ai formatoptions=tcroqn2 comments=n:&gt;
 augroup END
 
-set makeprg=python\ -m\ nose.core\ --machine-out
+" set makeprg=python\ -m\ nose.core\ --machine-out
 
 map <silent> <leader>y :<C-u>silent '<,'>w !pbcopy<CR>
 
@@ -471,8 +477,6 @@ map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
 map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
 map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
-map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
-map <leader>F :CommandTFlush<cr>\|:CommandT %%<cr>
 
 nnoremap <leader><leader> <c-^>
 
@@ -480,9 +484,6 @@ nnoremap <leader><leader> <c-^>
 " Running tests
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" vim-makegreen binds itself to ,t unless something else is bound to its
-" function.
-map <leader>\dontstealmymapsmakegreen :w\|:call MakeGreen('spec')<cr>
 
 function! RunTests(filename)
     " Write the file and run tests for the given filename
@@ -599,6 +600,21 @@ imap <c-c> <esc>
 command! InsertTime :normal a<c-r>=strftime('%F %H:%M:%S.0 %z')<cr>
 
 
+function! PromoteToLet()
+  :normal! dd
+  " :exec '?^\s*it\>'
+  :normal! P
+  :.s/\(\w\+\) = \(.*\)$/let(:\1) { \2 }/
+  :normal ==
+  " :normal! <<
+  " :normal! ilet(:
+  " :normal! f 2cl) {
+  " :normal! A }
+endfunction
+
+:command! PromoteToLet :call PromoteToLet()
+:map <leader>p :PromoteToLet<cr>
+
 filetype off
 set runtimepath+=~/.vim/vundle.git/ " my dev version
 
@@ -637,7 +653,7 @@ Bundle "https://github.com/tpope/vim-bundler.git"
 Bundle "https://github.com/tpope/vim-rvm.git"
 Bundle "https://github.com/tpope/vim-abolish.git"
 Bundle "https://github.com/tpope/vim-unimpaired.git"
-Bundle "https://github.com/vim-scripts/project.tar.gz.git" 
+" Bundle "https://github.com/vim-scripts/project.tar.gz.git" 
 Bundle "https://github.com/vim-scripts/a.vim.git" 
 noremap <leader>rc :Rcontroller<CR>
 noremap <leader>rm :Rmodel<CR>
@@ -652,48 +668,46 @@ Bundle "https://github.com/eraserhd/vim-kiwi.git"
 
 map <f4> :CoffeeCompile <CR>
 " with bare option 
-autocmd BufWritePost *.coffee CoffeeCompile! | cwindow
-autocmd BufWritePost *.coffee map <leader>d idebugger<esc>
-autocmd BufWritePost *.coffee map <leader>D :%s/debugger/g<CR>
+autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow | redraw!
 Bundle "http://github.com/claco/jasmine.vim.git"
 Bundle "http://github.com/mattn/zencoding-vim.git"
-Bundle "https://github.com/scrooloose/nerdtree.git"
-nmap <leader>nf :NERDTreeFind<CR>
+" Bundle "https://github.com/scrooloose/nerdtree.git"
+" nmap <leader>nf :NERDTreeFind<CR>
 Bundle "Specky"
-Bundle "Tagbar"
-" au BufRead,BufNewFile *.js TagbarOpen
-" autocmd FileType objc :TagbarOpen
-let g:tagbar_ctags_bin='/usr/local/bin/ctags'  " Proper Ctags locations
-let g:tagbar_width=30                          " Default is 40, seems too wide
-let g:tagbar_autofocus = 1
-let g:tagbar_compact = 1
-let g:tagbar_expand = 1
-let g:tagbar_autoshowtag = 1
-let g:tagbar_left = 1
+" Bundle "Tagbar"
+" " au BufRead,BufNewFile *.js TagbarOpen
+" " autocmd FileType objc :TagbarOpen
+" let g:tagbar_ctags_bin='/usr/local/bin/ctags'  " Proper Ctags locations
+" let g:tagbar_width=30                          " Default is 40, seems too wide
+" let g:tagbar_autofocus = 1
+" let g:tagbar_compact = 1
+" let g:tagbar_expand = 1
+" let g:tagbar_autoshowtag = 1
+" let g:tagbar_left = 1
 
 " only variables and f = () -> functions, no class members, methods etc (yet)
-let g:tagbar_type_coffee = {
-      \ 'ctagstype' : 'coffee',
-      \ 'kinds' : [
-      \ 'c:class',
-      \ 'n:namespace',
-      \ 'f:functions',
-      \ 'm:methods',
-      \ 'v:variables'
-      \ ],
-      \ }
-let g:tagbar_type_objc = {
-    \ 'ctagstype' : 'objc',
-    \ 'kinds'     : [
-        \ 'c:class',
-        \ 'p:property',
-        \ 'm:method',
-        \ 'i:interface'
-    \ ],
-    \ 'sro'        : '.'
-\ }
+" let g:tagbar_type_coffee = {
+"       \ 'ctagstype' : 'coffee',
+"       \ 'kinds' : [
+"       \ 'c:class',
+"       \ 'n:namespace',
+"       \ 'f:functions',
+"       \ 'm:methods',
+"       \ 'v:variables'
+"       \ ],
+"       \ }
+" let g:tagbar_type_objc = {
+"     \ 'ctagstype' : 'objc',
+"     \ 'kinds'     : [
+"         \ 'c:class',
+"         \ 'p:property',
+"         \ 'm:method',
+"         \ 'i:interface'
+"     \ ],
+"     \ 'sro'        : '.'
+" \ }
 " Display panel with \y (or ,y
-noremap <silent> <Leader>y :TagbarToggle<CR>
+" noremap <silent> <Leader>y :TagbarToggle<CR>
 " Bundle "https://github.com/vim-scripts/taglist.vim.git" 
 " noremap <silent> <Leader>tl :TlistToggle<CR>
 " autocmd BufLeave *LIST__ silent TlistClose 
@@ -720,6 +734,10 @@ Bundle "https://github.com/altercation/vim-colors-solarized"
 "" Git integration
 Bundle "git.zip"
 Bundle "https://github.com/tpope/vim-fugitive.git"
+Bundle "https://github.com/tpope/vim-eunuch.git"
+Bundle "https://github.com/scrooloose/syntastic.git"
+let g:syntastic_auto_jump=1
+let g:syntastic_auto_loc_list=1
 set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 "
 "" (HT|X)ml tool
@@ -735,8 +753,8 @@ Bundle "repeat.vim"
 Bundle "surround.vim"
 Bundle "file-line"
 Bundle "Align"
-Bundle "AutoComplPop"
-let g:acp_enableAtStartup = 1
+" Bundle "AutoComplPop"
+" let g:acp_enableAtStartup = 0
 " Bundle "https://github.com/vim-scripts/Conque-Shell.git" 
 " let g:ConqueTerm_TERM = 'vt100'
 "" experimental
@@ -772,23 +790,23 @@ Bundle "https://github.com/eraserhd/vim-ios.git"
 "" FuzzyFinder
 
 Bundle "L9"
-Bundle "FuzzyFinder"
-let g:fuf_modesDisable = [] " {{{
-nnoremap <silent> <LocalLeader>h :FufHelp<CR>
-nnoremap <silent> <LocalLeader>2 :FufFileWithCurrentBufferDir<CR>
-nnoremap <silent> <LocalLeader>@ :FufFile<CR>
-nnoremap <silent> <LocalLeader>3 :FufBuffer<CR>
-nnoremap <silent> <LocalLeader>4 :FufDirWithCurrentBufferDir<CR>
-nnoremap <silent> <LocalLeader>$ :FufDir<CR>
-nnoremap <silent> <LocalLeader>5 :FufChangeList<CR>
-nnoremap <silent> <LocalLeader>6 :FufMruFile<CR>
-nnoremap <silent> <LocalLeader>7 :FufLine<CR>
-nnoremap <silent> <LocalLeader>8 :FufBookmark<CR>
-nnoremap <silent> <LocalLeader>* :FuzzyFinderAddBookmark<CR><CR>
-nnoremap <silent> <LocalLeader>9 :FufTaggedFile<CR>
-" emir
-map <leader>f :FufFile<cr>
-map <leader>b :FufBuffer<cr>
+" Bundle "FuzzyFinder"
+" let g:fuf_modesDisable = [] " {{{
+" nnoremap <silent> <LocalLeader>h :FufHelp<CR>
+" nnoremap <silent> <LocalLeader>2 :FufFileWithCurrentBufferDir<CR>
+" nnoremap <silent> <LocalLeader>@ :FufFile<CR>
+" nnoremap <silent> <LocalLeader>3 :FufBuffer<CR>
+" nnoremap <silent> <LocalLeader>4 :FufDirWithCurrentBufferDir<CR>
+" nnoremap <silent> <LocalLeader>$ :FufDir<CR>
+" nnoremap <silent> <LocalLeader>5 :FufChangeList<CR>
+" nnoremap <silent> <LocalLeader>6 :FufMruFile<CR>
+" nnoremap <silent> <LocalLeader>7 :FufLine<CR>
+" nnoremap <silent> <LocalLeader>8 :FufBookmark<CR>
+" nnoremap <silent> <LocalLeader>* :FuzzyFinderAddBookmark<CR><CR>
+" nnoremap <silent> <LocalLeader>9 :FufTaggedFile<CR>
+" " emir
+" map <leader>f :FufFile<cr>
+" map <leader>b :FufBuffer<cr>
 "" " }}}
 "
 "" Zoomwin
@@ -810,12 +828,13 @@ vnoremap // :TComment<CR>
 "
 "" Command-T
 Bundle "git://git.wincent.com/command-t.git"
-let g:CommandTMatchWindowAtTop=1 " show window at top
-map <leader>b :CommandTBuffer<cr>
-map <leader>f :CommandT<cr>
+let g:CommandTMatchWindowAtTop=0 " show window at top
+map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
+map <leader>F :CommandTFlush<cr>\|:CommandT %%<cr>
+map <leader>b :CommandTFlush<cr>\|:CommandTBuffer<cr>
 "
 "" Navigation
-Bundle "http://github.com/gmarik/vim-visual-star-search.git"
+" Bundle "http://github.com/gmarik/vim-visual-star-search.git"
 "" External
 Bundle "https://github.com/robbyrussell/oh-my-zsh.git"
 "
@@ -860,7 +879,8 @@ imap jQ jQuery
 highlight Pmenu ctermbg=238 gui=bold
 
 "fast color change
-color molokai
+noremap <leader>c0  :color grb4<CR>
+noremap <leader>c9  :color grb256<CR>
 noremap <leader>c1  :color moria<CR>
 noremap <leader>c2  :color vividchalk<CR>
 noremap <leader>c3  :color molokai<CR>
@@ -871,6 +891,7 @@ noremap <leader>c7  :set background=dark<CR>
 " GRB: set the color scheme
 "
 set foldmethod=indent
+set foldlevelstart=99
 "build ctags for the cwd
 nmap <leader>ct :!ctags -R --language-force=ObjectiveC  --extra=+q /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks ./Classes/*<CR>
 " au BufNewFile,BufRead *.cpp,*.c,*.h,*.java,*.m syn region myCComment start="\/**" end="\**\/" fold keepend transparent
