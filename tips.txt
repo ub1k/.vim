@@ -1,0 +1,1 @@
+gi			Insert text in the same position as where Insert mode

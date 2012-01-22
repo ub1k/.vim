@@ -66,7 +66,7 @@ if &t_Co > 2 || has("gui_running")
   set hlsearch
   " set guifont=Monaco:h14
 
-  set fuoptions=maxvert,maxhorz " Fill Screen With Window
+  " set fuoptions=maxvert,maxhorz " Fill Screen With Window
   set guifont=Inconsolata-dz:h14
   " GRB: set window size"
 endif
@@ -621,6 +621,7 @@ set runtimepath+=~/.vim/vundle.git/ " my dev version
 
 
 "Plugins " {{{
+set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
 " let Vundle manage Vundle
@@ -664,6 +665,42 @@ noremap <leader>rv :Rview<CR>
 Bundle "https://github.com/pangloss/vim-javascript.git"
 Bundle "https://github.com/kchmck/vim-coffee-script.git"
 Bundle "https://github.com/eraserhd/vim-kiwi.git"
+Bundle "https://github.com/Rip-Rip/clang_complete.git" 
+let xcode_platform_path = '/Developer/Platforms/iPhoneSimulator.platform'
+let ios_sdk_path = xcode_platform_path . '/Developer/SDKs/iPhoneSimulator5.0.sdk'
+"clangコマンドの最後に追加されるオプション
+let options_for_ios = [
+      \ '-isysroot', ios_sdk_path,
+      \ '-fblocks',
+      \ '-fexceptions',
+      \ '-D__IPHONE_OS_VERSION_MIN_REQUIRED=40300',
+      \ '-F' . ios_sdk_path . '/System/Library/Frameworks',
+      \ '-include', 'Foundation/Foundation.h',
+      \ '-include', 'UIKit/UIKit.h'
+      \]
+
+let g:clang_exec = xcode_platform_path.'/Developer/usr/bin/clang'
+let g:clang_user_options = ''
+for o in options_for_ios
+  let g:clang_user_options .= ' '.shellescape(o)
+endfor
+
+" pythonで落ちる threadの取り回しが甘いんだろうなぁ
+let g:clang_use_library = 0
+let g:clang_library_path = '/Developer/usr/clang-ide/lib'
+
+let g:clang_complete_auto = 0
+let g:clang_complete_copen = 0
+let g:clang_periodic_quickfix = 0
+let g:clang_complete_macros = 1
+let g:clang_complete_patterns = 0
+
+if g:clang_use_library
+else
+  let g:clang_user_options .= ' 2>/dev/null || exit 0'
+endif
+
+let g:clang_debug = 0
 " Bundle "https://github.com/msanders/cocoa.vim"
 
 map <f4> :CoffeeCompile <CR>
@@ -738,7 +775,7 @@ Bundle "https://github.com/tpope/vim-eunuch.git"
 Bundle "https://github.com/scrooloose/syntastic.git"
 let g:syntastic_auto_jump=1
 let g:syntastic_auto_loc_list=1
-set statusline=%<%f\ %h%m%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
+set statusline=%<%f\ %h%m%r%{rvm#statusline()}%r%{fugitive#statusline()}%=%-14.(%l,%c%V%)\ %P
 "
 "" (HT|X)ml tool
 Bundle "https://github.com/godlygeek/tabular.git" 
