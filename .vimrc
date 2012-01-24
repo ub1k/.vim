@@ -467,16 +467,6 @@ function! ShowRoutes()
   " Delete empty trailing line
   :normal dd
 endfunction
-map <leader>gR :call ShowRoutes()<cr>
-map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
-map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
-map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
-map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
-map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
-map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
-map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
-map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
-map <leader>gg :topleft 100 :split Gemfile<cr>
 
 nnoremap <leader><leader> <c-^>
 
@@ -666,7 +656,7 @@ Bundle "https://github.com/pangloss/vim-javascript.git"
 Bundle "https://github.com/kchmck/vim-coffee-script.git"
 Bundle "https://github.com/eraserhd/vim-kiwi.git"
 Bundle "https://github.com/Rip-Rip/clang_complete.git" 
-let xcode_platform_path = '/Developer/Platforms/iPhoneSimulator.platform'
+let xcode_platform_path = '/Developer-4.2/Platforms/iPhoneSimulator.platform'
 let ios_sdk_path = xcode_platform_path . '/Developer/SDKs/iPhoneSimulator5.0.sdk'
 "clangコマンドの最後に追加されるオプション
 let options_for_ios = [
@@ -859,9 +849,10 @@ noremap <LocalLeader># "ayiw:Ack <C-r>a<CR>
 vnoremap <LocalLeader># "ay:Ack <C-r>a<CR>
 "
 "" tComment
-Bundle "tComment"
-nnoremap // :TComment<CR>
-vnoremap // :TComment<CR>
+" Bundle "tComment"
+Bundle "git://github.com/tpope/vim-commentary.git"
+"nnoremap // :TComment<CR>
+"vnoremap // :TComment<CR>
 "
 "" Command-T
 Bundle "git://git.wincent.com/command-t.git"
@@ -869,7 +860,31 @@ let g:CommandTMatchWindowAtTop=0 " show window at top
 map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
 map <leader>F :CommandTFlush<cr>\|:CommandT %%<cr>
 map <leader>b :CommandTFlush<cr>\|:CommandTBuffer<cr>
-"
+augroup rails
+  autocmd FileType ruby map <leader>gR :call ShowRoutes()<cr>
+  autocmd FileType ruby map <leader>gv :CommandTFlush<cr>\|:CommandT app/views<cr>
+  autocmd FileType ruby map <leader>gc :CommandTFlush<cr>\|:CommandT app/controllers<cr>
+  autocmd FileType ruby map <leader>gm :CommandTFlush<cr>\|:CommandT app/models<cr>
+  autocmd FileType ruby map <leader>gh :CommandTFlush<cr>\|:CommandT app/helpers<cr>
+  autocmd FileType ruby map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
+  autocmd FileType ruby map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
+  autocmd FileType ruby map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
+  autocmd FileType ruby map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
+  autocmd FileType ruby map <leader>gg :topleft 100 :split Gemfile<cr>
+augroup END
+augroup rails
+  " autocmd FileType objc map <leader>gR :call ShowRoutes()<cr>
+  autocmd FileType objc map <leader>gv :CommandTFlush<cr>\|:CommandT Classes/Views<cr>
+  autocmd FileType objc map <leader>gc :CommandTFlush<cr>\|:CommandT Classes/Controllers<cr>
+  autocmd FileType objc map <leader>gm :CommandTFlush<cr>\|:CommandT Classe/CoreData<cr>
+  autocmd FileType objc map <leader>gh :CommandTFlush<cr>\|:CommandT Classes/Helpers<cr>
+  autocmd FileType objc map <leader>gl :CommandTFlush<cr>\|:CommandT Classes/lib<cr>
+  " autocmd FileType objc map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
+  " autocmd FileType objc map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
+  " autocmd FileType objc map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
+  " autocmd FileType objc map <leader>gg :topleft 100 :split Gemfile<cr>
+
+augroup END
 "" Navigation
 " Bundle "http://github.com/gmarik/vim-visual-star-search.git"
 "" External
