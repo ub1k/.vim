@@ -656,7 +656,7 @@ Bundle "https://github.com/pangloss/vim-javascript.git"
 Bundle "https://github.com/kchmck/vim-coffee-script.git"
 Bundle "https://github.com/eraserhd/vim-kiwi.git"
 Bundle "https://github.com/Rip-Rip/clang_complete.git" 
-let xcode_platform_path = '/Developer-4.2/Platforms/iPhoneSimulator.platform'
+let xcode_platform_path = '/Developer/Platforms/iPhoneSimulator.platform'
 let ios_sdk_path = xcode_platform_path . '/Developer/SDKs/iPhoneSimulator5.0.sdk'
 "clangコマンドの最後に追加されるオプション
 let options_for_ios = [
@@ -666,7 +666,8 @@ let options_for_ios = [
       \ '-D__IPHONE_OS_VERSION_MIN_REQUIRED=40300',
       \ '-F' . ios_sdk_path . '/System/Library/Frameworks',
       \ '-include', 'Foundation/Foundation.h',
-      \ '-include', 'UIKit/UIKit.h'
+      \ '-include', 'UIKit/UIKit.h',
+      \ '-Include', '.'
       \]
 
 let g:clang_exec = xcode_platform_path.'/Developer/usr/bin/clang'
@@ -695,7 +696,7 @@ let g:clang_debug = 0
 
 map <f4> :CoffeeCompile <CR>
 " with bare option 
-autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow | redraw!
+" autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow | redraw!
 Bundle "http://github.com/claco/jasmine.vim.git"
 Bundle "http://github.com/mattn/zencoding-vim.git"
 " Bundle "https://github.com/scrooloose/nerdtree.git"
@@ -869,10 +870,16 @@ augroup rails
   autocmd FileType ruby map <leader>gl :CommandTFlush<cr>\|:CommandT lib<cr>
   autocmd FileType ruby map <leader>gp :CommandTFlush<cr>\|:CommandT public<cr>
   autocmd FileType ruby map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
+  autocmd FileType ruby map <leader>gj :CommandTFlush<cr>\|:CommandT app/assets/javascripts<cr>
   autocmd FileType ruby map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
-  autocmd FileType ruby map <leader>gg :topleft 100 :split Gemfile<cr>
+  autocmd FileType ruby, coffee map <leader>gg :topleft 100 :split Gemfile<cr>
+  autocmd FileType coffee map <leader>gm :CommandTFlush<cr>\|:CommandT app/assets/javascripts/models<cr>
+  autocmd FileType coffee map <leader>gc :CommandTFlush<cr>\|:CommandT app/assets/javascripts/collections<cr>
+  autocmd FileType coffee map <leader>gv :CommandTFlush<cr>\|:CommandT app/assets/javascripts/views<cr>
+  autocmd FileType coffee map <leader>gt :CommandTFlush<cr>\|:CommandT app/assets/javascripts/templates<cr>
+  autocmd FileType coffee map <leader>gr :CommandTFlush<cr>\|:CommandT app/assets/javascripts/routers<cr>
 augroup END
-augroup rails
+augroup objc
   " autocmd FileType objc map <leader>gR :call ShowRoutes()<cr>
   autocmd FileType objc map <leader>gv :CommandTFlush<cr>\|:CommandT Classes/Views<cr>
   autocmd FileType objc map <leader>gc :CommandTFlush<cr>\|:CommandT Classes/Controllers<cr>
@@ -945,9 +952,35 @@ noremap <leader>c7  :set background=dark<CR>
 set foldmethod=indent
 set foldlevelstart=99
 "build ctags for the cwd
-nmap <leader>ct :!ctags -R --language-force=ObjectiveC  --extra=+q /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks ./Classes/*<CR>
+nmap <leader>ct :!ctags -R --language-force=ObjectiveC  --extra=+q /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk/System/Library/Frameworks ./Classes/*<CR>
 " au BufNewFile,BufRead *.cpp,*.c,*.h,*.java,*.m syn region myCComment start="\/**" end="\**\/" fold keepend transparent
 
 if filereadable("./project.vim")
   source ./project.vim
 endif
+
+
+
+"build ctags for the cwd
+":nmap <leader>ct :!ctags -R *<CR>
+"
+""build ctags for the cwd
+:nmap <leader>ct :!ctags -R *<CR>
+
+
+function! s:ExecuteInShell(command)
+  let command = join(map(split(a:command), 'expand(v:val)'))
+  let winnr = bufwinnr('^' . command . '$')
+  silent! execute  winnr < 0 ? 'botright new ' . fnameescape(command) : winnr . 'wincmd w'
+  setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number
+  echo 'Execute ' . command . '...'
+  silent! execute 'silent %!'. command
+  silent! execute 'resize ' . line('$')
+  silent! redraw
+  silent! execute 'au BufUnload <buffer> execute bufwinnr(' . bufnr('#') . ') . ''wincmd w'''
+  silent! execute 'nnoremap <silent> <buffer> <LocalLeader>r :call <SID>ExecuteInShell(''' . command . ''')<CR>'
+  echo 'Shell command ' . command . ' executed.'
+endfunction
+command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
+ca shell Shell
+                      
