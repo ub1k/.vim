@@ -545,7 +545,8 @@ endfunction
 
 command! -range Md5 :echo system('echo '.shellescape(join(getline(<line1>, <line2>), '\n')) . '| md5')
 
-imap <c-l> <space>=><space>
+imap <c-l> <space>-><space>
+imap <c-L> <space>=><space>
 
 function! OpenChangedFiles()
   only " Close all windows, unless they're modified
@@ -774,6 +775,7 @@ Bundle "ragtag.vim"
 "
 "" Utility
 Bundle "https://github.com/vim-scripts/Google-translator" 
+let g:langpair="nl"
 Bundle "grep.vim"
 Bundle "Toggle"
 Bundle "http://github.com/tsaleh/vim-matchit.git"
@@ -872,7 +874,8 @@ augroup rails
   autocmd FileType ruby map <leader>gs :CommandTFlush<cr>\|:CommandT public/stylesheets/sass<cr>
   autocmd FileType ruby map <leader>gj :CommandTFlush<cr>\|:CommandT app/assets/javascripts<cr>
   autocmd FileType ruby map <leader>gf :CommandTFlush<cr>\|:CommandT features<cr>
-  autocmd FileType ruby, coffee map <leader>gg :topleft 100 :split Gemfile<cr>
+  autocmd FileType ruby map <leader>gg :topleft 100 :split Gemfile<cr>
+  autocmd FileType coffee map <leader>gg :topleft 100 :split Gemfile<cr>
   autocmd FileType coffee map <leader>gm :CommandTFlush<cr>\|:CommandT app/assets/javascripts/models<cr>
   autocmd FileType coffee map <leader>gc :CommandTFlush<cr>\|:CommandT app/assets/javascripts/collections<cr>
   autocmd FileType coffee map <leader>gv :CommandTFlush<cr>\|:CommandT app/assets/javascripts/views<cr>
