@@ -990,3 +990,5 @@ endfunction
 command! -complete=shellcmd -nargs=+ Shell call s:ExecuteInShell(<q-args>)
 ca shell Shell
                       
+au FileType javascript set dictionary+=$HOME/.vim/doc/node.dict
+au FileType javascript set dictionary+=$HOME/.vim/doc/javascript.dict
