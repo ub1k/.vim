@@ -582,7 +582,8 @@ endfunction
 nnoremap g<c-y> :call ScrollOtherWindowUp(v:count)<cr>
 nnoremap g<c-e> :call ScrollOtherWindowDown(v:count)<cr>
 
-set shell=zsh
+" interactive shell"
+set shell=/bin/zsh\ -l
 
 " Can't be bothered to understand the difference between ESC and <c-c> in
 " insert mode
@@ -779,6 +780,8 @@ let g:langpair="nl"
 Bundle "grep.vim"
 Bundle "Toggle"
 Bundle "http://github.com/tsaleh/vim-matchit.git"
+Bundle "https://github.com/kana/vim-textobj-user.git"
+Bundle "https://github.com/nelstrom/vim-textobj-rubyblock.git"
 Bundle "repeat.vim"
 Bundle "surround.vim"
 Bundle "file-line"
