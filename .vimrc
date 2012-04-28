@@ -417,7 +417,7 @@ function! InlineVariable()
 endfunction
 
 vnoremap <leader>rv :call ExtractVariable()<cr>
-nnoremap <leader>ri :call InlineVariable()<cr>
+" nnoremap <leader>ri :call InlineVariable()<cr>
 " " Find comment
 " map <leader>/# /^ *#<cr>
 " " Find function
@@ -518,6 +518,7 @@ map <leader>T :call RunNearestTest()<cr>
 map <leader>a :call RunTests('spec')<cr>
 map <leader>c :w\|:!cucumber<cr>
 map <leader>C :w\|:!cucumber --profile wip<cr>
+map <leader>r :w\|:CoffeeRun<cr>
 
 " set winwidth=84
 " We have to have a winheight bigger than we want to set winminheight. But if
@@ -620,6 +621,8 @@ call vundle#rc()
 " required! 
 Bundle 'gmarik/vundle'
 "" trying this
+" Bundle 'pydave/AsyncCommand'
+" Bundle 'mnick/vim-pomodoro'
 " Bundle "YankRing.vim"
 " bundle "http://github.com/thinca/vim-quickrun.git"
 " bundle "http://github.com/thinca/vim-poslist.git"
@@ -639,6 +642,8 @@ map <leader>dc  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.co
 map <leader>de  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.exit()<CR>
 map <leader>dd  :call ruby_debugger#load_debugger() <bar> call g:RubyDebugger.remove_breakpoints()<CR>
 "
+"" Test
+Bundle "https://github.com/skalnik/vim-vroom.git"
 "" Programming
 Bundle "jQuery"
 Bundle "https://github.com/tpope/vim-rails.git"
@@ -646,6 +651,14 @@ Bundle "https://github.com/tpope/vim-bundler.git"
 Bundle "https://github.com/tpope/vim-rvm.git"
 Bundle "https://github.com/tpope/vim-abolish.git"
 Bundle "https://github.com/tpope/vim-unimpaired.git"
+Bundle "https://github.com/greyblake/vim-preview.git"
+"" Documentation
+Bundle "https://github.com/vim-scripts/PA_ruby_ri.git"
+Bundle "https://github.com/lucapette/vim-jquery-doc.git"
+let g:jquery_doc_command='open'
+let g:jquery_doc_mapping='qq'
+Bundle "https://github.com/lucapette/vim-ruby-doc.git"
+let g:ruby_doc_command='open'
 " Bundle "https://github.com/vim-scripts/project.tar.gz.git" 
 Bundle "https://github.com/vim-scripts/a.vim.git" 
 noremap <leader>rc :Rcontroller<CR>
@@ -697,6 +710,7 @@ let g:clang_debug = 0
 " Bundle "https://github.com/msanders/cocoa.vim"
 
 map <f4> :CoffeeCompile <CR>
+map  <d-r> :CoffeeRun <CR>
 " with bare option 
 " autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow | redraw!
 Bundle "http://github.com/claco/jasmine.vim.git"

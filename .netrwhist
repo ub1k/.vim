@@ -1,11 +1,5 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =9
-let g:netrw_dirhist_1='/Users/emir/workspace/hoppakay'
-let g:netrw_dirhist_2='/Users/emir/workspace/zeboma/app/assets/javascripts/backbone/views/configurators'
-let g:netrw_dirhist_3='/Users/emir/workspace/hoppakay/spec/javascripts/support'
-let g:netrw_dirhist_4='/Users/emir/workspace/hoppakay/spec/javascripts'
-let g:netrw_dirhist_5='/Users/emir/workspace/hoppakay/spec/javascripts/helpers'
-let g:netrw_dirhist_6='/Users/ernesto/.vim'
-let g:netrw_dirhist_7='/Users/emir/workspace/hoppakay/app/models'
-let g:netrw_dirhist_8='/Users/emir/workspace/zeboma/app/models'
-let g:netrw_dirhist_9='/Users/emir/workspace/hoppakay/app/models'
+let g:netrw_dirhist_cnt =3
+let g:netrw_dirhist_1='/Users/emir/workspace/parkmobile/public'
+let g:netrw_dirhist_2='/Users/emir/workspace/colorproject/app/assets/javascripts/collections'
+let g:netrw_dirhist_3='/Users/emir/workspace/hoppakay/features/step_definitions/shared'
