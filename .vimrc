@@ -628,6 +628,13 @@ Bundle 'gmarik/vundle'
 " bundle "http://github.com/thinca/vim-poslist.git"
 " bundle "http://github.com/mattn/gist-vim.git"
 " bundle "http://github.com/rstacruz/sparkup.git", {'rtp': 'vim/'}
+Bundle 'https://github.com/ervandew/screen.git'
+" Bundle 'Vim-R-plugin'
+Bundle 'https://github.com/jcfaria/Vim-R-plugin.git'
+Bundle 'derekwyatt/vim-scala'
+let g:vimrplugin_applescript = 0
+Bundle 'git://vim-latex.git.sourceforge.net/gitroot/vim-latex/vim-latex'
+
 " bundle "https://github.com/astashov/vim-ruby-debugger.git" 
 let g:ruby_debugger_debug_mode = 1
 let g:ruby_debugger_default_script = "script/rails s"
@@ -798,6 +805,7 @@ Bundle "https://github.com/kana/vim-textobj-user.git"
 Bundle "https://github.com/nelstrom/vim-textobj-rubyblock.git"
 Bundle "repeat.vim"
 Bundle "surround.vim"
+Bundle "https://github.com/emig/gtype.vim"
 Bundle "file-line"
 Bundle "Align"
 " Bundle "AutoComplPop"
@@ -806,6 +814,10 @@ Bundle "Align"
 " let g:ConqueTerm_TERM = 'vt100'
 "" experimental
 Bundle "https://github.com/eraserhd/vim-ios.git"
+Bundle "https://github.com/AndrewRadev/switch.vim.git"
+Bundle "https://github.com/vim-scripts/BufOnly.vim.git"
+Bundle "https://github.com/myusuf3/numbers.vim.git"
+
 
 
 " Bundle "neocomplcache"
@@ -912,6 +924,12 @@ augroup objc
   " autocmd FileType objc map <leader>gg :topleft 100 :split Gemfile<cr>
 
 augroup END
+
+augroup scala
+  autocmd FileType scala map <leader>t :call ScreenShellSend("test")<CR>
+  autocmd FileType scala map <leader>c :call ScreenShellSend("compile")<CR>
+  autocmd FileType scala map <leader>r :call ScreenShellSend("run")<CR>
+augroup END
 "" Navigation
 " Bundle "http://github.com/gmarik/vim-visual-star-search.git"
 "" External
@@ -1006,3 +1024,4 @@ ca shell Shell
                       
 au FileType javascript set dictionary+=$HOME/.vim/doc/node.dict
 au FileType javascript set dictionary+=$HOME/.vim/doc/javascript.dict
+set relativenumber
